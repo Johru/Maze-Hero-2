@@ -10,6 +10,7 @@ import {
   witchSetup,
 } from './mapgeneration';
 import { mapSize } from './setup';
+import { SpriteName } from './sprites';
 import { monsterLevel } from './variables';
 export class Treasure {}
 
@@ -17,7 +18,7 @@ export class Monster {
   orderNumber: number;
   x: number;
   y: number;
-  image: string;
+  image: SpriteName;
   HP: number;
   DP: number;
   SP: number;
@@ -29,7 +30,7 @@ export class Monster {
     order: number,
     x: number = 1,
     y: number = 0,
-    image: string = 'boss',
+    image: SpriteName = 'boss',
     hp: number = 0,
     DP: number = 0,
     SP: number = 0,

@@ -22,6 +22,7 @@ import {
 } from './index';
 import { greenPotionsTotal, redPotionsTotal } from './mapgeneration';
 import {} from './map-render';
+import { getSprite, sprites } from './sprites';
 export let pathToPaint: number[][] = [];
 // import cloneDeep from 'lodash.clonedeep';
 export let unblocked = false;
@@ -42,7 +43,7 @@ export function renderMonster(specimen: Monster): void {
     specimen.y - scrollingModifierY <= 10
   ) {
     ctx.drawImage(
-      getSpriteByName(specimen.image),
+      getSprite(specimen.image),
       (specimen.x - 1 - scrollingModifierX) * tileWidth,
       (specimen.y - 1 - scrollingModifierY) * tileWidth,
       tileWidth,
@@ -66,7 +67,7 @@ export function renderDeadMonster(specimen: Monster): void {
   }
 }
 
-export function resetMonsters() {
+export function resetMonsters(): void {
   for (let monster of monsterList) {
     monster.init();
   }

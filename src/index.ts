@@ -1,4 +1,3 @@
-// import * as fs from 'fs';
 import {
   adjustWalls,
   pushBoundariesToWallList,
@@ -44,6 +43,7 @@ import {
   space,
 } from './variables';
 import { instantiateSetupArrays, theDoor } from './mapgeneration';
+import { loadSprites } from './sprites';
 export let scrollingModifierX: number = 0;
 export let scrollingModifierY: number = 0;
 export let pdown = false;
@@ -61,10 +61,12 @@ let currentTime = Date.now();
 const fps: number = 60;
 
 window.onload = () => {
-  updateGameState();
+  loadSprites().then(() => {
+    updateGameState();
+    setup();
+    animate();
+  });
 };
-setup();
-animate();
 export let interval = setInterval(tickController, moveEveryXMiliseconds);
 
 //Game loop handling
@@ -247,6 +249,8 @@ document.addEventListener('keydown', function (keyHit) {
 
   switch (keyHit.key) {
     case 'ArrowDown':
+    case 's':
+    case 'S':
       heroStats.facing = 'heroDown';
       if (attemptToMoveHero()) {
         heroStats.y++;
@@ -257,6 +261,8 @@ document.addEventListener('keydown', function (keyHit) {
       downdown = true;
       break;
     case 'ArrowUp':
+    case 'w':
+    case 'W':
       heroStats.facing = 'heroUp';
       if (attemptToMoveHero()) {
         heroStats.y--;
@@ -267,6 +273,8 @@ document.addEventListener('keydown', function (keyHit) {
       updown = true;
       break;
     case 'ArrowLeft':
+    case 'a':
+    case 'A':
       heroStats.facing = 'heroLeft';
       if (attemptToMoveHero()) {
         heroStats.x--;
@@ -277,6 +285,8 @@ document.addEventListener('keydown', function (keyHit) {
       leftdown = true;
       break;
     case 'ArrowRight':
+    case 'd':
+    case 'D':
       heroStats.facing = 'heroRight';
       if (attemptToMoveHero()) {
         heroStats.x++;
@@ -286,7 +296,7 @@ document.addEventListener('keydown', function (keyHit) {
       }
       rightdown = true;
       break;
-
+    case 'P':
     case 'p':
       if (heroStats.hasPotion > 0) {
         let originalHP = heroStats.currentHP;
@@ -314,21 +324,30 @@ document.addEventListener('keydown', function (keyHit) {
 document.addEventListener('keyup', function (keyHit) {
   switch (keyHit.key) {
     case 'p':
+    case 'P':
       pdown = false;
       break;
     case ' ':
       spacedown = false;
       break;
     case 'ArrowUp':
+    case 'w':
+    case 'W':
       updown = false;
       break;
     case 'ArrowDown':
+    case 's':
+    case 'S':
       downdown = false;
       break;
     case 'ArrowRight':
+    case 'd':
+    case 'D':
       rightdown = false;
       break;
     case 'ArrowLeft':
+    case 'a':
+    case 'A':
       leftdown = false;
       break;
     case 'Escape':
