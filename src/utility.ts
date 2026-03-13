@@ -36,9 +36,11 @@ import {
   escaped,
   pause,
   unpause,
+  greenDoorOpen,
+  redDoorOpen,
 } from './variables';
 import { Monster } from './classes';
-import {   } from './setup';
+import {} from './setup';
 import { witchSetup } from './mapgeneration';
 export function d6(numberOfRolls: number): number {
   let total: number = 0;
@@ -66,63 +68,67 @@ export function getSpriteByName(name: string): HTMLImageElement {
       return heroRight;
     case 'skeleton':
       return skeleton;
-      case 'boss':
-        return boss;
-        case 'door':
+    case 'boss':
+      return boss;
+    case 'door':
       return door;
-      case 'witch':
+    case 'witch':
       return witch;
-      case 'guard':
+    case 'guard':
       return guard;
-      case 'greenChest':
+    case 'greenChest':
       return greenChest;
-      case 'greenDoor':
+    case 'greenDoor':
       return greenDoor;
-      case 'greenChestOpen':
+    case 'greenDoorOpen':
+      return greenDoorOpen;
+    case 'greenChestOpen':
       return greenChestOpen;
-      case 'redChestOpen':
+    case 'redChestOpen':
       return redChestOpen;
-      case 'greenKey':
+    case 'greenKey':
       return greenKey;
-      case 'redKey':
+    case 'redKey':
       return redKey;
-      case 'pButton':
+    case 'pButton':
       return pButton;
-      case 'pdButton':
+    case 'pdButton':
       return pdButton;
-      case 'axe':
+    case 'axe':
       return axe;
-      case 'square':
+    case 'square':
       return square;
-      case 'redChest':
+    case 'redChest':
       return redChest;
-      case 'redDoor':
+    case 'redDoor':
       return redDoor;
-      case 'up':
+    case 'redDoorOpen':
+      return redDoorOpen;
+    case 'up':
       return up;
-      case 'upd':
+    case 'upd':
       return upd;
-      case 'down':
+    case 'down':
       return down;
-      case 'downd':
+    case 'downd':
       return downd;
-      case 'left':
+    case 'left':
       return left;
-      case 'leftd':
+    case 'leftd':
       return leftd;
-      case 'right':
+    case 'right':
       return right;
-      case 'rightd':
+    case 'rightd':
       return rightd;
-      case 'escape':
+    case 'escape':
       return escape;
-      case 'escaped':
+    case 'escaped':
       return escaped;
-      case 'pause':
+    case 'pause':
       return pause;
-      case 'nupause':
+    case 'nupause':
       return unpause;
-      case 'sword':
+    case 'sword':
       return unpause;
   }
   return heroDown;
@@ -142,10 +148,10 @@ export function battle(monster: Monster): void {
   if (heroStats.currentHP < 1) return;
   let startingHP: number = heroStats.currentHP;
   let startingOverkill: number = heroStats.overKillPoints;
-  let damageTracker:number=0;
+  let damageTracker: number = 0;
   let stopIfInfinite: number = 0;
   let overKillUsed = false;
-  let xpGain=0;
+  let xpGain = 0;
   while (monster.HP > 0 && stopIfInfinite < 10000) {
     let heroAttack: number = heroStats.SP + d3(1);
     if (heroStats.overKill == true) {
@@ -156,7 +162,7 @@ export function battle(monster: Monster): void {
     let monsterAttack: number = monster.SP + d3(1);
     if (heroAttack > monster.DP) {
       monster.HP -= heroAttack - monster.DP;
-      damageTracker+=heroAttack - monster.DP;
+      damageTracker += heroAttack - monster.DP;
     }
     if (monsterAttack > heroStats.DP) {
       heroStats.currentHP -= monsterAttack - heroStats.DP;
@@ -166,18 +172,25 @@ export function battle(monster: Monster): void {
 
     stopIfInfinite++;
   }
- 
-  if (monster.hasKey==true){heroStats.hasKey=true}
-  monster.alive = false;
-  if(heroStats.currentHP>0){
-    if (monster.image=='skeleton')xpGain=1;
-if (monster.image=='boss')xpGain=3;
-if (monster.image=='guard')xpGain=2;
-  
-    writeGameLog(`HP lost ${startingHP-heroStats.currentHP} / Damage given ${damageTracker} / Overkill points ${heroStats.overKillPoints-startingOverkill} `);
-  
+
+  if (monster.hasKey == true) {
+    heroStats.hasKey = true;
   }
-heroStats.currentXP+=xpGain;
+  monster.alive = false;
+  if (heroStats.currentHP > 0) {
+    if (monster.image == 'skeleton') xpGain = 1;
+    if (monster.image == 'boss') xpGain = 3;
+    if (monster.image == 'guard') xpGain = 2;
+
+    writeGameLog(
+      `HP lost ${
+        startingHP - heroStats.currentHP
+      } / Damage given ${damageTracker} / Overkill points ${
+        heroStats.overKillPoints - startingOverkill
+      } `
+    );
+  }
+  heroStats.currentXP += xpGain;
   stopIfInfinite = 0;
 }
 export let gameLog: string[] = [];

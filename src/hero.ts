@@ -58,7 +58,7 @@ export function heroInit(): void {
   heroStats.hasGreenKey = false;
   heroStats.hasRedKey = false;
   heroStats.hasSword = false;
-  heroStats.hasPotion = 0; //not implemented.
+  heroStats.hasPotion = 0;
   heroStats.facing = 'heroDown';
   heroStats.level = 1;
   heroStats.gold = 0;
@@ -101,13 +101,13 @@ export function attemptToMoveHero(): boolean {
   return checkIfMoveAllowed();
 }
 
-export function blockIfDoor() {
+export function blockIfDoor(): boolean {
   for (let i = 0; i < doorList.length; i++) {
     if (
       getDestination()[0] == doorList[i].x &&
       getDestination()[1] == doorList[i].y
     ) {
-      if (checkDoorColor(doorList[i])) {
+      if (!heroHasMatchingKey(doorList[i])) {
         return true;
       }
     }
@@ -115,7 +115,7 @@ export function blockIfDoor() {
   return false;
 }
 
-export function checkChest() {
+export function checkChest(): void {
   for (let chest of chestList) {
     if (getDestination()[0] == chest.x && getDestination()[1] == chest.y) {
       if (chest.hasKey && chest.image == 'greenChest') {
@@ -153,32 +153,45 @@ export function checkChest() {
   }
 }
 
-export function checkDoorColor(door: Monster) {
+export function heroHasMatchingKey(door: Monster): boolean {
   switch (door.image) {
     case 'door':
       if (heroStats.hasKey) {
-        return false;
-      } else {
-        writeGameLog("You don't have the Key!");
         return true;
+      } else {
+        writeGameLog("You don't have the Ultimate Key!");
+        return false;
       }
     case 'greenDoor':
-      if (heroStats.hasGreenKey) return false;
-      else {
-        writeGameLog("You don't have green key!");
+      if (heroStats.hasGreenKey) {
+        door.image = 'greenDoorOpen';
+        console.log(`door opened: ${door.image}`);
         return true;
+      } else {
+        writeGameLog("You don't have green key!");
+        return false;
       }
     case 'redDoor':
       if (heroStats.hasRedKey) {
-        return false;
+        door.image = 'redDoorOpen';
+        console.log(`door opened: ${door.image}`);
+        return true;
       } else {
         writeGameLog("You don't have red key!");
-        return true;
+        return false;
       }
+    case 'redDoorOpen':
+      console.log(`already opened: ${door.image}`);
+      return true;
+    case 'greenDoorOpen':
+      console.log(`already opened: ${door.image}`);
+      return true;
     default:
+      return true;
   }
   console.log('door type not recognized');
 }
+
 export function makeDestination(): number[] | undefined {
   if (heroStats.facing == 'heroDown')
     return updateDestination(heroStats.x, heroStats.y + 1);

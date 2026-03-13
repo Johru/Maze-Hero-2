@@ -19,8 +19,15 @@ export let key = document.getElementById('key') as HTMLImageElement;
 export let die = document.getElementById('die') as HTMLImageElement;
 export let potion = document.getElementById('potion') as HTMLImageElement;
 export let door = document.getElementById('door') as HTMLImageElement;
+export let doorOpen = document.getElementById('doorOpen') as HTMLImageElement;
 export let greenDoor = document.getElementById('greenDoor') as HTMLImageElement;
+export let greenDoorOpen = document.getElementById(
+  'greenDoorOpen'
+) as HTMLImageElement;
 export let redDoor = document.getElementById('redDoor') as HTMLImageElement;
+export let redDoorOpen = document.getElementById(
+  'redDoorOpen'
+) as HTMLImageElement;
 export let greenChest = document.getElementById(
   'greenChest'
 ) as HTMLImageElement;

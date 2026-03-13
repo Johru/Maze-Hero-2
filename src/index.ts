@@ -59,7 +59,6 @@ let finaleDone = false;
 let lastUpdate = Date.now();
 let currentTime = Date.now();
 const fps: number = 60;
-//setup
 
 window.onload = () => {
   updateGameState();
