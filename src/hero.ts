@@ -1,6 +1,5 @@
 import {
   heroStats,
-  monsterList,
   getDestination,
   updateDestination,
   ctx,
@@ -9,8 +8,6 @@ import {
   resetMonstersLevel,
   resetSpeed,
   heroXpArray,
-  doorList,
-  chestList,
 } from './variables';
 import { checkIfMoveAllowed, battle, d6, writeGameLog } from './utility';
 import {
@@ -24,6 +21,7 @@ import {
 import { setMapSize, setup } from './setup';
 import { Monster } from './classes';
 import { getSprite } from './sprites';
+import { chestList, doorList, monsterList } from './mapgeneration';
 
 export function checkIfHeroDead(): void {
   if (heroStats.currentHP < 1) {
@@ -149,7 +147,7 @@ export function checkChest(): void {
 
 export function heroHasMatchingKey(door: Monster): boolean {
   switch (door.image) {
-    case 'door':
+    case 'blackDoor':
       if (heroStats.hasKey) {
         return true;
       } else {

@@ -1,15 +1,10 @@
 import {
-  monsterList,
   tileWidth,
   ctx,
   updateDestination,
   getDestination,
   heroStats,
-  witchList,
-  greenChestList,
-  redChestList,
   monsterLevel,
-  wallPositionList,
 } from './variables';
 import { checkIfMoveAllowed, battle } from './utility';
 import { Monster } from './classes';
@@ -19,7 +14,15 @@ import {
   scrollingModifierY,
   spacedown,
 } from './index';
-import { greenPotionsTotal, redPotionsTotal } from './mapgeneration';
+import {
+  greenChestList,
+  greenPotionsTotal,
+  monsterList,
+  redChestList,
+  redPotionsTotal,
+  wallPositionList,
+  witchList,
+} from './mapgeneration';
 import {} from './map-render';
 import { getSprite, sprites } from './sprites';
 export let pathToPaint: number[][] = [];
@@ -339,11 +342,7 @@ export function attemptToMoveMonster(specimen: Monster): void {
         stopIfInfinite++;
       }
     }
-    if (
-      checkIfMoveAllowed() &&
-      checkOtherMonsters(specimen) &&
-      specimen.image != 'blackDoor'
-    ) {
+    if (checkIfMoveAllowed() && checkOtherMonsters(specimen)) {
       specimen.x = getDestination()[0];
       specimen.y = getDestination()[1];
     }

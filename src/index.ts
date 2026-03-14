@@ -1,10 +1,4 @@
-import {
-  adjustWalls,
-  pushBoundariesToWallList,
-  setup,
-  mapSize,
-  setMapSize,
-} from './setup';
+import { pushBoundariesToWallList, setup, mapSize, setMapSize } from './setup';
 import { writeGameLog } from './utility';
 import {
   renderFloor,
@@ -29,17 +23,20 @@ import {
   attemptToMoveMonster,
 } from './monster';
 import {
-  monsterList,
   heroStats,
   updateSpeed,
   moveEveryXMiliseconds,
-  emptyMapLists,
   monsterLevel,
   ctx,
   resetSpeed,
   resetMonstersLevel,
 } from './variables';
-import { instantiateSetupArrays, blackDoor } from './mapgeneration';
+import {
+  instantiateSetupArrays,
+  blackDoor,
+  monsterList,
+  emptyMapLists,
+} from './mapgeneration';
 import { getSprite, loadSprites } from './sprites';
 export let scrollingModifierX: number = 0;
 export let scrollingModifierY: number = 0;
@@ -126,8 +123,6 @@ function checkVictoryConditions() {
 
     emptyMapLists();
     instantiateSetupArrays();
-    //randomizeFloor();
-    adjustWalls();
     pushBoundariesToWallList();
     resetMonsters();
     if (moveEveryXMiliseconds > 500) {

@@ -1,12 +1,7 @@
-import {
-  getDestination,
-  heroStats,
-  monsterHasKey,
-  wallPositionList,
-} from './variables';
+import { getDestination, heroStats, monsterHasKey } from './variables';
 import { Monster } from './classes';
 import {} from './setup';
-import { witchSetup } from './mapgeneration';
+import { wallPositionList } from './mapgeneration';
 export function d6(numberOfRolls: number): number {
   let total: number = 0;
   for (let i = 0; i < numberOfRolls; i++) {

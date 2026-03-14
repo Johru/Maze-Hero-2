@@ -1,4 +1,3 @@
-import { GreenChest, Monster } from './classes';
 import { SpriteName } from './sprites';
 import { d6 } from './utility';
 export const canvas = document.querySelector(
@@ -37,23 +36,6 @@ export function resetSpeed(newSpeed: number): void {
   moveEveryXMiliseconds = newSpeed;
 }
 export let tileWidth: number = 65;
-export let monsterList: Monster[] = [];
-export let witchList: Monster[] = [];
-export let doorList: Monster[] = [];
-export let greenChestList: GreenChest[] = [];
-export let redChestList: GreenChest[] = [];
-export let chestList: GreenChest[] = [];
-export let wallPositionList: number[][] = [];
-
-export function emptyMapLists(): void {
-  wallPositionList = [];
-  witchList = [];
-  doorList = [];
-  greenChestList = [];
-  redChestList = [];
-  chestList = [];
-  monsterList = [];
-}
 
 export let monsterHasKey: number = 1;
 export function updateMonsterHasKey(orderNumberOfMonster: number): number {

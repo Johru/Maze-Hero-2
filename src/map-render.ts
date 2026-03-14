@@ -1,11 +1,4 @@
-import {
-  ctx,
-  tileWidth,
-  heroStats,
-  monsterLevel,
-  canvas,
-  wallPositionList,
-} from './variables';
+import { ctx, tileWidth, heroStats, monsterLevel, canvas } from './variables';
 import { gameLog } from './utility';
 import {} from './setup';
 import {
@@ -20,6 +13,7 @@ import {
   updown,
 } from './index';
 import { getSprite } from './sprites';
+import { wallPositionList } from './mapgeneration';
 
 export function clearCanvas(): void {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
