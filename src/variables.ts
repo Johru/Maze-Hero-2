@@ -1,70 +1,15 @@
 import { GreenChest, Monster } from './classes';
+import { SpriteName } from './sprites';
 import { d6 } from './utility';
 export const canvas = document.querySelector(
   '.main-canvas'
 ) as HTMLCanvasElement;
 export const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-export let skeleton = document.getElementById('skeleton') as HTMLImageElement;
-export let heroUp = document.getElementById('hero-up') as HTMLImageElement;
-export let heroDown = document.getElementById('hero-down') as HTMLImageElement;
-export let heroLeft = document.getElementById('hero-left') as HTMLImageElement;
-export let heroRight = document.getElementById(
-  'hero-right'
-) as HTMLImageElement;
-export let floor = document.getElementById('floor') as HTMLImageElement;
-export let wall = document.getElementById('wall') as HTMLImageElement;
-export let boss = document.getElementById('boss') as HTMLImageElement;
-export let blood = document.getElementById('blood') as HTMLImageElement;
-export let key = document.getElementById('key') as HTMLImageElement;
-export let die = document.getElementById('die') as HTMLImageElement;
-export let potion = document.getElementById('potion') as HTMLImageElement;
-export let door = document.getElementById('door') as HTMLImageElement;
-export let doorOpen = document.getElementById('doorOpen') as HTMLImageElement;
-export let greenDoor = document.getElementById('greenDoor') as HTMLImageElement;
-export let greenDoorOpen = document.getElementById(
-  'greenDoorOpen'
-) as HTMLImageElement;
-export let redDoor = document.getElementById('redDoor') as HTMLImageElement;
-export let redDoorOpen = document.getElementById(
-  'redDoorOpen'
-) as HTMLImageElement;
-export let greenChest = document.getElementById(
-  'greenChest'
-) as HTMLImageElement;
-export let greenChestOpen = document.getElementById(
-  'greenChestOpen'
-) as HTMLImageElement;
-export let redChest = document.getElementById('redChest') as HTMLImageElement;
-export let redChestOpen = document.getElementById(
-  'redChestOpen'
-) as HTMLImageElement;
-export let witch = document.getElementById('witch') as HTMLImageElement;
-export let guard = document.getElementById('guard') as HTMLImageElement;
-export let greenKey = document.getElementById('greenKey') as HTMLImageElement;
-export let redKey = document.getElementById('redKey') as HTMLImageElement;
-export let pButton = document.getElementById('pButton') as HTMLImageElement;
-export let pdButton = document.getElementById('pdButton') as HTMLImageElement;
-export let axe = document.getElementById('axe') as HTMLImageElement;
-export let square = document.getElementById('square') as HTMLImageElement;
-export let space = document.getElementById('space') as HTMLImageElement;
-export let spaced = document.getElementById('spaced') as HTMLImageElement;
-export let up = document.getElementById('up') as HTMLImageElement;
-export let upd = document.getElementById('upd') as HTMLImageElement;
-export let down = document.getElementById('down') as HTMLImageElement;
-export let downd = document.getElementById('downd') as HTMLImageElement;
-export let right = document.getElementById('right') as HTMLImageElement;
-export let rightd = document.getElementById('rightd') as HTMLImageElement;
-export let left = document.getElementById('left') as HTMLImageElement;
-export let leftd = document.getElementById('leftd') as HTMLImageElement;
-export let escape = document.getElementById('escape') as HTMLImageElement;
-export let escaped = document.getElementById('escaped') as HTMLImageElement;
-export let pause = document.getElementById('pause') as HTMLImageElement;
-export let unpause = document.getElementById('unpause') as HTMLImageElement;
-export let sword = document.getElementById('sword') as HTMLImageElement;
+
 export let heroStats = {
   x: 1,
   y: 1,
-  facing: 'heroDown',
+  facing: 'hero-down' as SpriteName,
   level: 1,
   maxHP: d6(3) + 20,
   currentHP: 6,

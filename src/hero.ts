@@ -12,14 +12,7 @@ import {
   doorList,
   chestList,
 } from './variables';
-import {
-  checkIfMoveAllowed,
-  battle,
-  getSpriteByName,
-  d6,
-  writeGameLog,
-  gameLog,
-} from './utility';
+import { checkIfMoveAllowed, battle, d6, writeGameLog } from './utility';
 import {
   setMonsterSpeed,
   interval,
@@ -30,12 +23,13 @@ import {
 } from './index';
 import { setMapSize, setup } from './setup';
 import { Monster } from './classes';
+import { getSprite } from './sprites';
 
 export function checkIfHeroDead(): void {
   if (heroStats.currentHP < 1) {
     let deaths = localStorage.getItem('deaths');
     if (deaths === undefined || deaths === null) deaths = '0';
-    let deathCount = parseInt(deaths!);
+    let deathCount = parseInt(deaths);
     deathCount++;
     localStorage.setItem('deaths', deathCount.toString());
     writeGameLog('YOU DIED');
@@ -59,7 +53,7 @@ export function heroInit(): void {
   heroStats.hasRedKey = false;
   heroStats.hasSword = false;
   heroStats.hasPotion = 0;
-  heroStats.facing = 'heroDown';
+  heroStats.facing = 'hero-down';
   heroStats.level = 1;
   heroStats.gold = 0;
   heroStats.neededXP = heroXpArray[heroStats.level];
@@ -84,7 +78,7 @@ export function increaseMapLevel(): void {
 
 export function renderHero(): void {
   ctx.drawImage(
-    getSpriteByName(heroStats.facing),
+    getSprite(heroStats.facing),
     (heroStats.x - 1 - scrollingModifierX) * tileWidth,
     (heroStats.y - 1 - scrollingModifierY) * tileWidth,
     tileWidth,
@@ -193,13 +187,13 @@ export function heroHasMatchingKey(door: Monster): boolean {
 }
 
 export function makeDestination(): number[] | undefined {
-  if (heroStats.facing == 'heroDown')
+  if (heroStats.facing == 'hero-down')
     return updateDestination(heroStats.x, heroStats.y + 1);
-  if (heroStats.facing == 'heroUp')
+  if (heroStats.facing == 'hero-up')
     return updateDestination(heroStats.x, heroStats.y - 1);
-  if (heroStats.facing == 'heroLeft')
+  if (heroStats.facing == 'hero-left')
     return updateDestination(heroStats.x - 1, heroStats.y);
-  if (heroStats.facing == 'heroRight')
+  if (heroStats.facing == 'hero-right')
     return updateDestination(heroStats.x + 1, heroStats.y);
 }
 

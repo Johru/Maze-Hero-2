@@ -2,7 +2,6 @@ import {
   monsterList,
   tileWidth,
   ctx,
-  blood,
   updateDestination,
   getDestination,
   heroStats,
@@ -12,7 +11,7 @@ import {
   monsterLevel,
   wallPositionList,
 } from './variables';
-import { getSpriteByName, checkIfMoveAllowed, battle } from './utility';
+import { checkIfMoveAllowed, battle } from './utility';
 import { Monster } from './classes';
 import {
   escapedown,
@@ -58,7 +57,7 @@ export function renderDeadMonster(specimen: Monster): void {
     specimen.y - scrollingModifierY <= 10
   ) {
     ctx.drawImage(
-      blood,
+      getSprite('blood'),
       (specimen.x - 1 - scrollingModifierX) * tileWidth,
       (specimen.y - 1 - scrollingModifierY) * tileWidth,
       tileWidth,
@@ -117,7 +116,7 @@ export function iterateList(input: any): void {
 
 export const losArray: number[][] = [];
 
-export function checkLineOfSight(monsterX: number, monsterY: number) {
+export function checkLineOfSight(monsterX: number, monsterY: number): boolean {
   losArray.length = 0;
   let x1 = monsterX;
   let y1 = monsterY;
@@ -165,16 +164,8 @@ export function checkLineOfSight(monsterX: number, monsterY: number) {
     if (!isLOSunblocked(losArray[i][0], losArray[i][1])) unblocked = false;
   }
 
-  if (unblocked) {
-    // paintPathToHero(monsterX, monsterY);
-    return true;
-  } else return false;
+  return unblocked;
 }
-
-// export function paintPathToHero(x: number, y: number) {
-//   pathToPaint = findShortestPath(x, y, heroStats.x, heroStats.y);
-//   return pathToPaint;
-// }
 
 interface Node {
   thisNodeX: number;
@@ -189,7 +180,7 @@ export function findShortestPath(
   startY: number,
   targetX: number,
   targetY: number
-) {
+): number[][] {
   let currentNode: Node = {
     thisNodeX: startX,
     thisNodeY: startY,
@@ -204,7 +195,6 @@ export function findShortestPath(
 
   openList.push(currentNode);
 
-  // loop1: for (let j = 0; j < 15; j++) {
   loop1: while (openList.length > 0) {
     exploreList.length = 0;
 
@@ -322,14 +312,13 @@ export function attemptToMoveMonster(specimen: Monster): void {
         heroStats.x,
         heroStats.y
       );
-      console.log('new path');
-      specimen.path.shift();
-      console.log(...specimen.path);
-      updateDestination(specimen.path[0][0], specimen.path[0][1]);
-    } else if (specimen.path.length > 0) {
-      console.log('existing path');
-      console.log(...specimen.path);
 
+      specimen.path.shift();
+
+      if (specimen.path.length > 0) {
+        updateDestination(specimen.path[0][0], specimen.path[0][1]);
+      }
+    } else if (specimen.path.length > 0) {
       updateDestination(specimen.path[0][0], specimen.path[0][1]);
       specimen.path.shift();
     } else {

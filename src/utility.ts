@@ -1,43 +1,8 @@
 import {
-  heroDown,
-  heroUp,
-  heroLeft,
-  heroRight,
-  skeleton,
-  boss,
   getDestination,
   heroStats,
   monsterHasKey,
-  door,
-  witch,
-  guard,
-  greenChest,
-  greenDoor,
-  greenChestOpen,
-  redChestOpen,
-  greenKey,
-  redKey,
-  pButton,
-  pdButton,
-  axe,
-  square,
   wallPositionList,
-  redChest,
-  redDoor,
-  up,
-  upd,
-  down,
-  downd,
-  left,
-  leftd,
-  right,
-  rightd,
-  escape,
-  escaped,
-  pause,
-  unpause,
-  greenDoorOpen,
-  redDoorOpen,
 } from './variables';
 import { Monster } from './classes';
 import {} from './setup';
@@ -56,83 +21,7 @@ export function d3(numberOfRolls: number): number {
   }
   return total;
 }
-export function getSpriteByName(name: string): HTMLImageElement {
-  switch (name) {
-    case 'heroDown':
-      return heroDown;
-    case 'heroUp':
-      return heroUp;
-    case 'heroLeft':
-      return heroLeft;
-    case 'heroRight':
-      return heroRight;
-    case 'skeleton':
-      return skeleton;
-    case 'boss':
-      return boss;
-    case 'door':
-      return door;
-    case 'witch':
-      return witch;
-    case 'guard':
-      return guard;
-    case 'greenChest':
-      return greenChest;
-    case 'greenDoor':
-      return greenDoor;
-    case 'greenDoorOpen':
-      return greenDoorOpen;
-    case 'greenChestOpen':
-      return greenChestOpen;
-    case 'redChestOpen':
-      return redChestOpen;
-    case 'greenKey':
-      return greenKey;
-    case 'redKey':
-      return redKey;
-    case 'pButton':
-      return pButton;
-    case 'pdButton':
-      return pdButton;
-    case 'axe':
-      return axe;
-    case 'square':
-      return square;
-    case 'redChest':
-      return redChest;
-    case 'redDoor':
-      return redDoor;
-    case 'redDoorOpen':
-      return redDoorOpen;
-    case 'up':
-      return up;
-    case 'upd':
-      return upd;
-    case 'down':
-      return down;
-    case 'downd':
-      return downd;
-    case 'left':
-      return left;
-    case 'leftd':
-      return leftd;
-    case 'right':
-      return right;
-    case 'rightd':
-      return rightd;
-    case 'escape':
-      return escape;
-    case 'escaped':
-      return escaped;
-    case 'pause':
-      return pause;
-    case 'nupause':
-      return unpause;
-    case 'sword':
-      return unpause;
-  }
-  return heroDown;
-}
+
 export function checkIfMoveAllowed(): boolean {
   for (let i = 0; i < wallPositionList.length; i++) {
     if (

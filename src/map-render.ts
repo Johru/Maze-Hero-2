@@ -1,42 +1,16 @@
 import {
-  floor,
   ctx,
   tileWidth,
-  wall,
   heroStats,
   monsterLevel,
-  key,
   canvas,
-  potion,
-  greenKey,
-  redKey,
-  pdButton,
-  pButton,
-  square,
-  axe,
   wallPositionList,
-  space,
-  spaced,
-  right,
-  rightd,
-  left,
-  leftd,
-  down,
-  downd,
-  up,
-  upd,
-  escape,
-  escaped,
-  pause,
-  unpause,
-  sword,
 } from './variables';
 import { gameLog } from './utility';
 import {} from './setup';
 import {
   downdown,
   escapeanim,
-  escapedown,
   leftdown,
   pdown,
   rightdown,
@@ -46,6 +20,7 @@ import {
   updown,
 } from './index';
 import { losArray, unblocked } from './monster';
+import { getSprite } from './sprites';
 
 export function clearCanvas(): void {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -58,21 +33,7 @@ export function renderFloor(): void {
   }
 }
 
-// export function paintPath(x: number, y: number) {
-//   // let pathToPaint = paintPathToHero(x, y);
-//   for (let i = 1; i < pathToPaint.length; i++) {
-//     ctx.fillStyle = 'grey';
-//     ctx.fillRect(
-//       (pathToPaint[i][0] - 1) * tileWidth + 5,
-//       (pathToPaint[i][1] - 1) * tileWidth + 5,
-//       52,
-//       52
-//     );
-//   }
-//   ctx.fillStyle = 'black';
-// }
-
-export function paintLos(x: number, y: number) {
+export function paintLos(x: number, y: number): void {
   for (let i = 0; i < losArray.length; i++) {
     ctx.fillStyle = 'yellow';
     ctx.fillRect(
@@ -113,7 +74,7 @@ export function renderWalls(): void {
 
 function renderWallTile(xPosition: number, yPosition: number): void {
   ctx.drawImage(
-    wall,
+    getSprite('wall'),
     xPosition * tileWidth,
     yPosition * tileWidth,
     tileWidth,
@@ -122,7 +83,7 @@ function renderWallTile(xPosition: number, yPosition: number): void {
 }
 function renderFloorTile(xPosition: number, yPosition: number): void {
   ctx.drawImage(
-    floor,
+    getSprite('floor'),
     xPosition * tileWidth,
     yPosition * tileWidth,
     tileWidth,
@@ -137,7 +98,7 @@ function renderFloorTile(xPosition: number, yPosition: number): void {
   );
 }
 export function renderPauseScreen() {
-  ctx.drawImage(square, 0, 0, 1120, 650);
+  ctx.drawImage(getSprite('square'), 0, 0, 1120, 650);
   ctx.font = '20px Arial';
   ctx.fillText(`Winning the game: `, 70, 50);
   ctx.font = '12px Arial';
@@ -245,79 +206,74 @@ export function renderPauseScreen() {
 export function printstats(): void {
   ctx.font = '20px Arial';
   ctx.fillText('Stats:', 660, 25);
-  ctx.drawImage(square, 835, 0, 90, 90);
-  ctx.drawImage(square, 835, 90, 90, 90);
-  ctx.drawImage(square, 835, 180, 90, 90);
-  ctx.drawImage(square, 1030, 0, 90, 90);
-  ctx.drawImage(square, 1100, 0, 20, 20);
-  ctx.drawImage(square, 1030, 90, 90, 90);
-  ctx.drawImage(square, 1030, 180, 90, 90);
-  ctx.drawImage(square, 1030, 270, 90, 90);
-  ctx.drawImage(square, 650, 0, 185, 270);
-  ctx.drawImage(square, 650, 400, 480, 250);
+  ctx.drawImage(getSprite('square'), 835, 0, 90, 90);
+  ctx.drawImage(getSprite('square'), 835, 90, 90, 90);
+  ctx.drawImage(getSprite('square'), 835, 180, 90, 90);
+  ctx.drawImage(getSprite('square'), 1030, 0, 90, 90);
+  ctx.drawImage(getSprite('square'), 1100, 0, 20, 20);
+  ctx.drawImage(getSprite('square'), 1030, 90, 90, 90);
+  ctx.drawImage(getSprite('square'), 1030, 180, 90, 90);
+  ctx.drawImage(getSprite('square'), 1030, 270, 90, 90);
+  ctx.drawImage(getSprite('square'), 650, 0, 185, 270);
+  ctx.drawImage(getSprite('square'), 650, 400, 480, 250);
   if (heroStats.hasKey) {
-    ctx.drawImage(key, 835, 0, 90, 90);
+    ctx.drawImage(getSprite('key'), 835, 0, 90, 90);
   }
   if (heroStats.overKill) {
-    ctx.drawImage(axe, 1030, 270, 90, 90);
+    ctx.drawImage(getSprite('axe'), 1030, 270, 90, 90);
   }
   if (heroStats.hasGreenKey) {
-    ctx.drawImage(greenKey, 835, 90, 90, 90);
+    ctx.drawImage(getSprite('greenKey'), 835, 90, 90, 90);
   }
   if (heroStats.hasRedKey) {
-    ctx.drawImage(redKey, 835, 180, 90, 90);
+    ctx.drawImage(getSprite('redKey'), 835, 180, 90, 90);
   }
   if (heroStats.hasPotion > 0) {
-    ctx.drawImage(potion, 1030, 0, 90, 90);
+    ctx.drawImage(getSprite('potion'), 1030, 0, 90, 90);
   }
   ctx.font = '20px Arial';
   ctx.fillText(`${heroStats.hasPotion}`, 1105, 17);
 
   if (pdown) {
-    ctx.drawImage(pdButton, 935, 24, 90, 42);
+    ctx.drawImage(getSprite('pButton'), 935, 0, 90, 90);
   } else {
-    ctx.drawImage(pButton, 935, 24, 90, 45);
+    ctx.drawImage(getSprite('pButton'), 935, 0, 90, 90);
   }
   if (spacedown) {
-    ctx.drawImage(space, 935, 280, 90, 42);
+    ctx.drawImage(getSprite('space'), 935, 280, 90, 42);
   } else {
-    ctx.drawImage(spaced, 935, 280, 90, 48);
+    ctx.drawImage(getSprite('spaced'), 935, 280, 90, 48);
   }
   if (rightdown) {
-    ctx.drawImage(right, 920, 345, 42, 42);
+    ctx.drawImage(getSprite('right'), 920, 345, 42, 42);
   } else {
-    ctx.drawImage(rightd, 920, 345, 45, 45);
+    ctx.drawImage(getSprite('rightd'), 920, 345, 45, 45);
   }
   if (leftdown) {
-    ctx.drawImage(left, 820, 345, 42, 42);
+    ctx.drawImage(getSprite('left'), 820, 345, 42, 42);
   } else {
-    ctx.drawImage(leftd, 820, 345, 45, 45);
+    ctx.drawImage(getSprite('leftd'), 820, 345, 45, 45);
   }
   if (downdown) {
-    ctx.drawImage(down, 870, 345, 42, 42);
+    ctx.drawImage(getSprite('down'), 870, 345, 42, 42);
   } else {
-    ctx.drawImage(downd, 870, 345, 45, 45);
+    ctx.drawImage(getSprite('downd'), 870, 345, 45, 45);
   }
   if (updown) {
-    ctx.drawImage(up, 870, 295, 42, 42);
+    ctx.drawImage(getSprite('up'), 870, 295, 42, 42);
   } else {
-    ctx.drawImage(upd, 870, 295, 45, 45);
+    ctx.drawImage(getSprite('upd'), 870, 295, 45, 45);
   }
   if (escapeanim) {
-    ctx.drawImage(escape, 670, 290, 100, 88);
+    ctx.drawImage(getSprite('escape'), 670, 290, 100, 88);
   } else {
-    ctx.drawImage(escaped, 670, 290, 100, 88);
+    ctx.drawImage(getSprite('escaped'), 670, 290, 100, 88);
   }
-  // if (escapedown) {
-  //   ctx.drawImage(pause, 670, 340, 100, 88);
-  // } else {
-  //   ctx.drawImage(unpause, 670, 340, 45, 45);
-  // }
   if (heroStats.hasSword) {
-    ctx.drawImage(sword, 1030, 90, 90, 90);
+    ctx.drawImage(getSprite('sword'), 1030, 90, 90, 90);
   }
   if (heroStats.hasPotion > 1000) {
-    ctx.drawImage(potion, 1030, 180, 90, 90);
+    ctx.drawImage(getSprite('potion'), 1030, 180, 90, 90);
   }
   ctx.fillText(`Hero Level: ${heroStats.level}`, 660, 50);
   ctx.fillText(

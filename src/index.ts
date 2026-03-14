@@ -37,13 +37,11 @@ import {
   emptyMapLists,
   monsterLevel,
   ctx,
-  square,
   resetSpeed,
   resetMonstersLevel,
-  space,
 } from './variables';
 import { instantiateSetupArrays, theDoor } from './mapgeneration';
-import { loadSprites } from './sprites';
+import { getSprite, loadSprites } from './sprites';
 export let scrollingModifierX: number = 0;
 export let scrollingModifierY: number = 0;
 export let pdown = false;
@@ -59,15 +57,15 @@ let finaleDone = false;
 let lastUpdate = Date.now();
 let currentTime = Date.now();
 const fps: number = 60;
-
+export let interval: ReturnType<typeof setInterval>;
 window.onload = () => {
   loadSprites().then(() => {
+    interval = setInterval(tickController, moveEveryXMiliseconds);
     updateGameState();
     setup();
     animate();
   });
 };
-export let interval = setInterval(tickController, moveEveryXMiliseconds);
 
 //Game loop handling
 function tickController() {
@@ -149,11 +147,11 @@ function finale() {
   if (finaleDone) return;
   escapedown = true;
   setScore();
-  ctx.drawImage(square, 0, 0, 900, 600);
+  ctx.drawImage(getSprite('square'), 0, 0, 900, 600);
   ctx.font = '50px Arial';
   ctx.fillText(`Thank you for Playing!`, 100, 100);
   ctx.fillText(`Score: ${heroStats.highscore}`, 100, 160);
-  ctx.drawImage(space, 100, 180, 90, 42);
+  ctx.drawImage(getSprite('space'), 100, 180, 90, 42);
   ctx.fillText(`to restart.`, 200, 215);
   ctx.fillText(`Previous Highscore:`, 200, 260);
   for (let i = 0; i < 5; i++) {
@@ -251,7 +249,7 @@ document.addEventListener('keydown', function (keyHit) {
     case 'ArrowDown':
     case 's':
     case 'S':
-      heroStats.facing = 'heroDown';
+      heroStats.facing = 'hero-down';
       if (attemptToMoveHero()) {
         heroStats.y++;
         if (heroStats.y > 5 && heroStats.y < mapSize - 4) {
@@ -263,7 +261,7 @@ document.addEventListener('keydown', function (keyHit) {
     case 'ArrowUp':
     case 'w':
     case 'W':
-      heroStats.facing = 'heroUp';
+      heroStats.facing = 'hero-up';
       if (attemptToMoveHero()) {
         heroStats.y--;
         if (heroStats.y > 4 && heroStats.y < mapSize - 5) {
@@ -275,7 +273,7 @@ document.addEventListener('keydown', function (keyHit) {
     case 'ArrowLeft':
     case 'a':
     case 'A':
-      heroStats.facing = 'heroLeft';
+      heroStats.facing = 'hero-left';
       if (attemptToMoveHero()) {
         heroStats.x--;
         if (heroStats.x > 4 && heroStats.x < mapSize - 5) {
@@ -287,7 +285,7 @@ document.addEventListener('keydown', function (keyHit) {
     case 'ArrowRight':
     case 'd':
     case 'D':
-      heroStats.facing = 'heroRight';
+      heroStats.facing = 'hero-right';
       if (attemptToMoveHero()) {
         heroStats.x++;
         if (heroStats.x > 5 && heroStats.x < mapSize - 4) {
