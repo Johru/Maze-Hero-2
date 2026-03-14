@@ -83,9 +83,9 @@ function parseLevel(layout: string): ParsedLevel {
 
 export const mapsLayout = [
   parseLevel(`
-..#..SS##G
+..#.gSS##G
 .##.##S#..
-.....#.#..
+.....#g#..
 .###.#....
 .#.#.#.###
 .#.#...#..
@@ -136,6 +136,7 @@ RS........##..#..#.b
 ];
 
 export let monsterList: Monster[] = [];
+export let mobList: Monster[] = [];
 export let witchList: Monster[] = [];
 export let doorList: Monster[] = [];
 export let greenChestList: GreenChest[] = [];
@@ -151,6 +152,7 @@ export function emptyMapLists(): void {
   redChestList = [];
   chestList = [];
   monsterList = [];
+  mobList = [];
 }
 
 export let bossMonster = new Monster();
@@ -175,9 +177,9 @@ export function instantiateSetupArrays(): void {
   const currentLevel = monsterLevel - 1;
   const currentMap = mapsLayout[currentLevel];
   wallPositionList = [...currentMap.walls];
-  spawn(currentMap.witches, () => new Witch(), witchList);
-  spawn(currentMap.skeletons, () => new Skeleton());
-  spawn(currentMap.guards, () => new Guard());
+  spawn(currentMap.witches, () => new Witch(), witchList, mobList);
+  spawn(currentMap.skeletons, () => new Skeleton(), mobList);
+  spawn(currentMap.guards, () => new Guard(), mobList);
   spawn(currentMap.blackDoor, () => new BlackDoor(), doorList);
   spawn(currentMap.greenDoors, () => new GreenDoor(), doorList);
   spawn(currentMap.redDoors, () => new RedDoor(), doorList);
@@ -192,6 +194,7 @@ export function instantiateSetupArrays(): void {
   currentMap.boss.forEach(([x, y]) => {
     bossMonster.pickASpot(x, y);
     monsterList.push(bossMonster);
+    mobList.push(bossMonster);
   });
 
   monsterList.push(blackDoor);

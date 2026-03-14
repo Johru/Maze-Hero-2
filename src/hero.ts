@@ -9,7 +9,7 @@ import {
   resetSpeed,
   heroXpArray,
 } from './variables';
-import { checkIfMoveAllowed, battle, d6, writeGameLog } from './utility';
+import { isNotAWall, battle, d6, writeGameLog } from './utility';
 import {
   setMonsterSpeed,
   interval,
@@ -90,7 +90,7 @@ export function attemptToMoveHero(): boolean {
   checkIfBattle();
   if (blockIfDoor()) return false;
   checkChest();
-  return checkIfMoveAllowed();
+  return isNotAWall();
 }
 
 export function blockIfDoor(): boolean {
@@ -151,13 +151,13 @@ export function heroHasMatchingKey(door: Monster): boolean {
       if (heroStats.hasKey) {
         return true;
       } else {
-        writeGameLog("You don't have the Ultimate Key!");
+        writeGameLog("You don't have the Black Key!");
         return false;
       }
     case 'greenDoor':
       if (heroStats.hasGreenKey) {
         door.image = 'greenDoorOpen';
-        console.log(`door opened: ${door.image}`);
+        door.open = true;
         return true;
       } else {
         writeGameLog("You don't have green key!");
@@ -166,17 +166,15 @@ export function heroHasMatchingKey(door: Monster): boolean {
     case 'redDoor':
       if (heroStats.hasRedKey) {
         door.image = 'redDoorOpen';
-        console.log(`door opened: ${door.image}`);
+        door.open = true;
         return true;
       } else {
         writeGameLog("You don't have red key!");
         return false;
       }
     case 'redDoorOpen':
-      console.log(`already opened: ${door.image}`);
       return true;
     case 'greenDoorOpen':
-      console.log(`already opened: ${door.image}`);
       return true;
     default:
       return true;

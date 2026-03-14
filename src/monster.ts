@@ -6,17 +6,15 @@ import {
   heroStats,
   monsterLevel,
 } from './variables';
-import { checkIfMoveAllowed, battle } from './utility';
+import { isNotAWall, battle } from './utility';
 import { Monster } from './classes';
+import { escapedown, scrollingModifierX, scrollingModifierY } from './index';
 import {
-  escapedown,
-  scrollingModifierX,
-  scrollingModifierY,
-  spacedown,
-} from './index';
-import {
+  chestList,
+  doorList,
   greenChestList,
   greenPotionsTotal,
+  mobList,
   monsterList,
   redChestList,
   redPotionsTotal,
@@ -24,20 +22,25 @@ import {
   witchList,
 } from './mapgeneration';
 import {} from './map-render';
-import { getSprite, sprites } from './sprites';
+import { getSprite } from './sprites';
 export let pathToPaint: number[][] = [];
-// import cloneDeep from 'lodash.clonedeep';
 export let unblocked = false;
 
 export function renderAllMonsters(): void {
-  for (let i = 0; i < monsterList.length; i++) {
-    renderDeadMonster(monsterList[i]);
+  for (let i = 0; i < chestList.length; i++) {
+    renderMonster(chestList[i]);
   }
-
-  for (let i = 0; i < monsterList.length; i++) {
-    renderMonster(monsterList[i]);
+  for (let i = 0; i < doorList.length; i++) {
+    renderMonster(doorList[i]);
+  }
+  for (let i = 0; i < mobList.length; i++) {
+    renderDeadMonster(mobList[i]);
+  }
+  for (let i = 0; i < mobList.length; i++) {
+    renderMonster(mobList[i]);
   }
 }
+
 export function renderMonster(specimen: Monster): void {
   if (
     specimen.alive &&
@@ -303,48 +306,47 @@ export function isLOSunblocked(x: number, y: number): boolean {
   return true;
 }
 
+function getShuffledDirections(): number[] {
+  return [1, 2, 3, 4].sort(() => Math.random() - 0.5);
+}
+
 export function attemptToMoveMonster(specimen: Monster): void {
   if (escapedown) return;
   if (specimen.alive && specimen.speed > 0) {
     if (checkLineOfSight(specimen.x, specimen.y) && specimen.image != 'witch') {
-      specimen.path.length = 0;
       specimen.path = findShortestPath(
         specimen.x,
         specimen.y,
         heroStats.x,
         heroStats.y
       );
-
       specimen.path.shift();
 
       if (specimen.path.length > 0) {
         updateDestination(specimen.path[0][0], specimen.path[0][1]);
+        if (isNotAWall() && isNotAMonster(specimen)) {
+          specimen.x = getDestination()[0];
+          specimen.y = getDestination()[1];
+          specimen.path.shift();
+        }
       }
     } else if (specimen.path.length > 0) {
       updateDestination(specimen.path[0][0], specimen.path[0][1]);
-      specimen.path.shift();
-    } else {
-      let direction: number = 0;
-      let hasMoved: boolean = false;
-      let stopIfInfinite: number = 0;
-      while (!hasMoved) {
-        if (stopIfInfinite > 100) break;
-        direction = Math.floor(Math.random() * 4) + 1;
-        monsterDestination(direction, specimen);
 
-        if (
-          checkIfMoveAllowed() &&
-          checkOtherMonsters(specimen) &&
-          specimen.image != 'blackDoor'
-        ) {
-          hasMoved = true;
-        }
-        stopIfInfinite++;
+      if (isNotAWall() && isNotAMonster(specimen)) {
+        specimen.x = getDestination()[0];
+        specimen.y = getDestination()[1];
+        specimen.path.shift();
       }
-    }
-    if (checkIfMoveAllowed() && checkOtherMonsters(specimen)) {
-      specimen.x = getDestination()[0];
-      specimen.y = getDestination()[1];
+    } else {
+      for (const direction of getShuffledDirections()) {
+        monsterDestination(direction, specimen);
+        if (isNotAWall() && isNotAMonster(specimen)) {
+          specimen.x = getDestination()[0];
+          specimen.y = getDestination()[1];
+          break;
+        }
+      }
     }
   }
 }
@@ -366,13 +368,14 @@ function monsterDestination(input: number, specimen: Monster) {
   }
 }
 
-function checkOtherMonsters(specimen: Monster) {
+function isNotAMonster(specimen: Monster) {
   for (let monster of monsterList) {
     if (monster === specimen) continue;
     if (
       monster.x === getDestination()[0] &&
       monster.y === getDestination()[1] &&
-      monster.alive
+      monster.alive &&
+      !monster.open
     ) {
       return false;
     }

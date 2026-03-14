@@ -17,7 +17,7 @@ export function d3(numberOfRolls: number): number {
   return total;
 }
 
-export function checkIfMoveAllowed(): boolean {
+export function isNotAWall(): boolean {
   for (let i = 0; i < wallPositionList.length; i++) {
     if (
       getDestination()[0] == wallPositionList[i][0] &&

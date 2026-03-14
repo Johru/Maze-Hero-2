@@ -5,7 +5,7 @@ import { monsterLevel } from './variables';
 export class Treasure {}
 
 export class Monster {
-  orderNumber: number;
+  open: boolean;
   x: number;
   y: number;
   image: SpriteName;
@@ -17,7 +17,7 @@ export class Monster {
   speed: number = 1;
   path: number[][] = [];
   constructor(
-    order: number = 0,
+    open: boolean = false,
     x: number = 1,
     y: number = 0,
     image: SpriteName = 'boss',
@@ -27,7 +27,7 @@ export class Monster {
     alive: boolean = true,
     hasKey: boolean = false
   ) {
-    this.orderNumber = order;
+    this.open = open;
     this.x = x;
     this.y = y;
     this.image = image;
@@ -77,7 +77,6 @@ export class Witch extends Monster {
 }
 export class Door extends Monster {
   speed: number = 0;
-  open: boolean = false;
   init(): void {
     this.HP = 0;
     this.DP = 0;
@@ -87,7 +86,6 @@ export class Door extends Monster {
 export class Chest extends Monster {
   speed: number = 0;
   gold: number = 0;
-  open: boolean = false;
   hasPotion: boolean = false;
   hasSword: boolean = false;
   init(): void {
