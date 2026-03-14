@@ -19,7 +19,6 @@ import {
   spacedown,
   updown,
 } from './index';
-import { losArray, unblocked } from './monster';
 import { getSprite } from './sprites';
 
 export function clearCanvas(): void {
@@ -31,30 +30,6 @@ export function renderFloor(): void {
       renderFloorTile(i, j);
     }
   }
-}
-
-export function paintLos(x: number, y: number): void {
-  for (let i = 0; i < losArray.length; i++) {
-    ctx.fillStyle = 'yellow';
-    ctx.fillRect(
-      (losArray[i][0] - 1) * tileWidth + (tileWidth - 25) / 2,
-      (losArray[i][1] - 1) * tileWidth + (tileWidth - 25) / 2,
-      25,
-      25
-    );
-  }
-  ctx.fillStyle = 'black';
-  ctx.strokeStyle = 'green';
-  ctx.lineWidth = 3;
-  if (unblocked) ctx.strokeStyle = 'red';
-  ctx.beginPath();
-  ctx.moveTo(
-    (heroStats.x - 1) * tileWidth + tileWidth / 2,
-    (heroStats.y - 1) * tileWidth + tileWidth / 2
-  );
-  ctx.lineTo(x * 65 - tileWidth / 2, y * 65 - tileWidth / 2);
-  ctx.stroke();
-  ctx.lineWidth = 1;
 }
 
 export function renderWalls(): void {
@@ -97,7 +72,7 @@ function renderFloorTile(xPosition: number, yPosition: number): void {
     tileWidth
   );
 }
-export function renderPauseScreen() {
+export function renderPauseScreen(): void {
   ctx.drawImage(getSprite('square'), 0, 0, 1120, 650);
   ctx.font = '20px Arial';
   ctx.fillText(`Winning the game: `, 70, 50);

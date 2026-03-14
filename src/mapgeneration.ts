@@ -1,5 +1,5 @@
 import {
-  Door,
+  BlackDoor,
   GreenChest,
   GreenDoor,
   Guard,
@@ -15,15 +15,135 @@ import {
   greenChestList,
   monsterLevel,
   monsterList,
-  redChest,
   redChestList,
   witchList,
 } from './variables';
+
+interface ParsedLevel {
+  walls: [number, number][];
+  witches: [number, number][];
+  guards: [number, number][];
+  skeletons: [number, number][];
+  boss: [number, number][];
+  greenChests: [number, number][];
+  redChests: [number, number][];
+  greenDoors: [number, number][];
+  redDoors: [number, number][];
+  blackDoor: [number, number][];
+}
+
+function parseLevel(layout: string): ParsedLevel {
+  const result: ParsedLevel = {
+    walls: [],
+    witches: [],
+    guards: [],
+    skeletons: [],
+    boss: [],
+    greenChests: [],
+    redChests: [],
+    greenDoors: [],
+    redDoors: [],
+    blackDoor: [],
+  };
+
+  layout
+    .trim()
+    .split('\n')
+    .forEach((row, y) => {
+      row.split('').forEach((cell, x) => {
+        switch (cell) {
+          case '#':
+            result.walls.push([x + 1, y + 1]);
+            break;
+          case 'W':
+            result.witches.push([x + 1, y + 1]);
+            break;
+          case 'T':
+            result.guards.push([x + 1, y + 1]);
+            break;
+          case 'S':
+            result.skeletons.push([x + 1, y + 1]);
+            break;
+          case 'K':
+            result.boss.push([x + 1, y + 1]);
+            break;
+          case 'b':
+            result.blackDoor.push([x + 1, y + 1]);
+            break;
+          case 'g':
+            result.greenDoors.push([x + 1, y + 1]);
+            break;
+          case 'r':
+            result.redDoors.push([x + 1, y + 1]);
+            break;
+          case 'G':
+            result.greenChests.push([x + 1, y + 1]);
+            break;
+          case 'R':
+            result.redChests.push([x + 1, y + 1]);
+            break;
+        }
+      });
+    });
+
+  return result;
+}
+
+export const mapsLayout = [
+  parseLevel(`
+..#...S##G
+.##.##.#..
+.....#.#S.
+.###.#....
+.#.#.#.###
+.#.#...#..
+...S.#....
+##.....#g#
+....####..
+G.#...W#Kb
+  `),
+  parseLevel(`
+.#...#G#....S..
+.....#..T......
+.##..#####r###.
+.#S........#...
+...##.##...###.
+##.#.......#.T.
+W#.#.#.##.#..##
+.#...#..#.#....
+.###.#T.#.####.
+.....#G.#.#....
+.###.####..T...
+...........##..
+###.S#.##.##...
+..r..#..#..#.##
+G.#..#.....#.gb
+  `),
+  parseLevel(`
+.##.g...T...#.....SR
+....#.G####.#.#..#S.
+#r#.#.R#..r...#..#..
+W.#.####.###G.#..###
+GG#.S....#.####.T...
+###.###.##.#.G####S.
+....#......#.G#..#..
+.R#...#.T..#...T.###
+.Sr.#.#R.#.#.#G..#G.
+.##...####.#.###.##.
+.#..#.....S..T....#.
+....##.##.#####.#.#r
+g##.....#.#G.Tr.#..T
+..#.###...#####T##.#
+..#S#...#...T.......
+W.#G#.###.#.###..##K
+#####.#...#.TR#..#..
+RS........$$..$..$.b
+    `),
+];
+const currentLevel = monsterLevel - 1;
+const currentMap = mapsLayout[currentLevel];
+
 export let wallSetup: number[][] = [
-  // [
-  //   3, 3, 4, 4, 6, 6, 7, 7, 7, 2, 7, 3, 7, 4, 2, 7, 3, 7, 4, 7, 2, 2, 3, 2, 4,
-  //   2, 5, 2,
-  // ],
   [
     3, 1, 8, 1, 9, 1, 2, 2, 3, 2, 5, 2, 6, 2, 8, 2, 6, 3, 8, 3, 2, 4, 3, 4, 4,
     4, 6, 4, 2, 5, 4, 5, 6, 5, 8, 5, 9, 5, 10, 5, 2, 6, 4, 6, 8, 6, 6, 7, 1, 8,
@@ -59,93 +179,45 @@ export let wallSetup: number[][] = [
     11, 19, 15, 19, 18, 19, 11, 20, 12, 20, 15, 20, 18, 20,
   ],
 ];
-export let witchSetup: number[][] = [
-  [7, 10],
-  [1, 7],
-  [1, 4, 1, 18],
-];
-export let greenDoorSetup: number[][] = [
-  [9, 8],
-  [14, 15],
-  [5, 1, 1, 15],
-];
-export let greenChestSetup: number[][] = [
-  [10, 1, 1, 10],
-  [7, 1, 1, 15],
-  [1, 5, 2, 5, 7, 2, 13, 4, 14, 6, 14, 7, 15, 11, 19, 11, 12, 15, 4, 18],
-];
-export let redDoorSetup: number[][] = [
-  [],
-  [11, 3, 3, 14],
-  [2, 3, 11, 3, 13, 8, 3, 11, 20, 14, 15, 15],
-];
-export let redChestSetup: number[][] = [
-  [],
-  [7, 10],
-  [7, 3, 20, 1, 2, 9, 8, 11, 14, 19, 1, 20],
-];
-export let skeletonSetup: number[][] = [
-  [6, 6, 9, 2, 2, 9],
-  [3, 4, 11, 4, 14, 4, 10, 12, 4, 14],
-  [6, 2, 4, 5, 1, 9, 14, 4, 16, 7, 16, 11, 20, 12, 7, 15],
-];
-export let bossSetup: number[][] = [
-  [9, 9],
-  [13, 15],
-  [19, 20],
-];
-export let guardSetup: number[][] = [
-  [],
-  [7, 2, 8, 10],
-  [
-    10, 3, 8, 10, 9, 11, 14, 15, 2, 20, 16, 18, 17, 18, 16, 19, 17, 19, 16, 20,
-    17, 20,
-  ],
-];
-export let bossMonster: Monster = new Monster(0);
-export let theDoor: Monster = new Door(99);
+
+export let bossMonster = new Monster();
+export let blackDoor = new BlackDoor();
 export let greenPotionsTotal: number[] = [1, 1, 3];
 export let redPotionsTotal: number[] = [0, 0, 1];
 
+function spawn<T extends Monster>(
+  coords: [number, number][],
+  create: () => T,
+  ...extraLists: T[][]
+): void {
+  coords.forEach(([x, y]) => {
+    const specimen = create();
+    specimen.pickASpot(x, y);
+    monsterList.push(specimen);
+    extraLists.forEach(list => list.push(specimen));
+  });
+}
+
 export function instantiateSetupArrays(): void {
-  for (let i = 0; i < witchSetup[monsterLevel - 1].length; i += 2) {
-    let witch: Monster = new Witch(i / 2);
-    monsterList.push(witch);
-    witchList.push(witch);
-  }
-  for (let i = 0; i < redDoorSetup[monsterLevel - 1].length; i += 2) {
-    let red2Door: Monster = new RedDoor(i / 2);
-    monsterList.push(red2Door);
-    doorList.push(red2Door);
-  }
-  for (let i = 0; i < skeletonSetup[monsterLevel - 1].length; i += 2) {
-    let skeleton: Monster = new Skeleton(i / 2);
-    monsterList.push(skeleton);
-  }
-  for (let i = 0; i < guardSetup[monsterLevel - 1].length; i += 2) {
-    let guard: Monster = new Guard(i / 2);
-    monsterList.push(guard);
-  }
+  spawn(currentMap.witches, () => new Witch(), witchList);
+  spawn(currentMap.skeletons, () => new Skeleton());
+  spawn(currentMap.guards, () => new Guard());
+  spawn(currentMap.blackDoor, () => new BlackDoor(), doorList);
+  spawn(currentMap.greenDoors, () => new GreenDoor(), doorList);
+  spawn(currentMap.redDoors, () => new RedDoor(), doorList);
+  spawn(
+    currentMap.greenChests,
+    () => new GreenChest(),
+    greenChestList,
+    chestList
+  );
+  spawn(currentMap.redChests, () => new RedChest(), redChestList, chestList);
 
-  for (let i = 0; i < greenChestSetup[monsterLevel - 1].length; i += 2) {
-    let greenChest: GreenChest = new GreenChest(i / 2);
-    monsterList.push(greenChest);
-    greenChestList.push(greenChest);
-    chestList.push(greenChest);
-  }
-  for (let i = 0; i < redChestSetup[monsterLevel - 1].length; i += 2) {
-    let red2Chest: RedChest = new RedChest(i / 2);
-    monsterList.push(red2Chest);
-    redChestList.push(red2Chest);
-    chestList.push(red2Chest);
-  }
-  for (let i = 0; i < greenDoorSetup[monsterLevel - 1].length; i += 2) {
-    let greenDoor: Monster = new GreenDoor(i / 2);
-    monsterList.push(greenDoor);
-    doorList.push(greenDoor);
-  }
+  currentMap.boss.forEach(([x, y]) => {
+    bossMonster.pickASpot(x, y);
+    monsterList.push(bossMonster);
+  });
 
-  monsterList.push(bossMonster);
-  monsterList.push(theDoor);
-  doorList.push(theDoor);
+  monsterList.push(blackDoor);
+  doorList.push(blackDoor);
 }

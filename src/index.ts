@@ -26,7 +26,6 @@ import {
   checkIfBattleForMonsters,
   resetMonsters,
   assignKey,
-  checkLineOfSight,
   attemptToMoveMonster,
 } from './monster';
 import {
@@ -40,7 +39,7 @@ import {
   resetSpeed,
   resetMonstersLevel,
 } from './variables';
-import { instantiateSetupArrays, theDoor } from './mapgeneration';
+import { instantiateSetupArrays, blackDoor } from './mapgeneration';
 import { getSprite, loadSprites } from './sprites';
 export let scrollingModifierX: number = 0;
 export let scrollingModifierY: number = 0;
@@ -114,8 +113,8 @@ function updateGameState() {
 //Reset when Map Level finished.
 function checkVictoryConditions() {
   if (
-    heroStats.x == theDoor.x &&
-    heroStats.y == theDoor.y &&
+    heroStats.x == blackDoor.x &&
+    heroStats.y == blackDoor.y &&
     heroStats.hasKey
   ) {
     increaseMapLevel();

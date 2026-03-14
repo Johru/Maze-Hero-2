@@ -70,21 +70,21 @@ export function resetMonsters(): void {
   for (let monster of monsterList) {
     monster.init();
   }
-  let swordChest: number;
-  let greenChestKey: number = Math.floor(
-    Math.random() * (greenChestList.length - 1)
-  );
-  let redChestKey: number = Math.floor(
-    Math.random() * (redChestList.length - 1)
-  );
-  if (monsterLevel == 3) {
-    swordChest = Math.floor(Math.random() * (redChestList.length - 1));
-    console.log(`gigachad sword in chest ${swordChest}`);
-  }
-  let greenChestPotion: number = greenPotionsTotal[monsterLevel - 1];
-  let redChestPotion: number = redPotionsTotal[monsterLevel - 1];
+
+  const greenKeyChest =
+    greenChestList[Math.floor(Math.random() * greenChestList.length)];
+  const redKeyChest =
+    redChestList[Math.floor(Math.random() * redChestList.length)];
+  const swordChest =
+    monsterLevel === 3
+      ? redChestList[Math.floor(Math.random() * redChestList.length)]
+      : null;
+
+  let greenChestPotion = greenPotionsTotal[monsterLevel - 1];
+  let redChestPotion = redPotionsTotal[monsterLevel - 1];
+
   for (let chest of greenChestList) {
-    if (chest.orderNumber == greenChestKey) {
+    if (chest === greenKeyChest) {
       chest.hasKey = true;
     } else if (greenChestPotion > 0) {
       chest.hasPotion = true;
@@ -93,11 +93,10 @@ export function resetMonsters(): void {
       chest.gold = 50;
     }
   }
+
   for (let chest of redChestList) {
-    if (chest.orderNumber == swordChest) {
-      chest.hasSword = true;
-    }
-    if (chest.orderNumber == redChestKey) {
+    if (chest === swordChest) chest.hasSword = true;
+    if (chest === redKeyChest) {
       chest.hasKey = true;
     } else if (redChestPotion > 0) {
       chest.hasPotion = true;
@@ -333,7 +332,7 @@ export function attemptToMoveMonster(specimen: Monster): void {
         if (
           checkIfMoveAllowed() &&
           checkOtherMonsters(specimen) &&
-          specimen.image != 'door'
+          specimen.image != 'blackDoor'
         ) {
           hasMoved = true;
         }
@@ -343,7 +342,7 @@ export function attemptToMoveMonster(specimen: Monster): void {
     if (
       checkIfMoveAllowed() &&
       checkOtherMonsters(specimen) &&
-      specimen.image != 'door'
+      specimen.image != 'blackDoor'
     ) {
       specimen.x = getDestination()[0];
       specimen.y = getDestination()[1];
@@ -369,12 +368,12 @@ function monsterDestination(input: number, specimen: Monster) {
 }
 
 function checkOtherMonsters(specimen: Monster) {
-  for (let i = 0; i < monsterList.length; i++) {
-    if (i == specimen.orderNumber) continue;
+  for (let monster of monsterList) {
+    if (monster === specimen) continue;
     if (
-      monsterList[i].x == getDestination()[0] &&
-      monsterList[i].y == getDestination()[1] &&
-      monsterList[i].alive
+      monster.x === getDestination()[0] &&
+      monster.y === getDestination()[1] &&
+      monster.alive
     ) {
       return false;
     }
@@ -383,13 +382,9 @@ function checkOtherMonsters(specimen: Monster) {
 }
 
 export function assignKey(): void {
-  let witchNumber: number = Math.floor(Math.random() * (witchList.length - 1));
-  for (let witsch of witchList) {
-    if (witsch.orderNumber == witchNumber) {
-      witsch.hasKey = true;
-    } else {
-      witsch.hasKey = false;
-    }
+  const luckyWitch = witchList[Math.floor(Math.random() * witchList.length)];
+  for (let witch of witchList) {
+    witch.hasKey = witch === luckyWitch;
   }
 }
 

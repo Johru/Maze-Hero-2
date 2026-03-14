@@ -11,7 +11,7 @@ const SPRITE_IDS = [
   'key',
   'youdied',
   'potion',
-  'door',
+  'blackDoor',
   'doorOpen',
   'guard',
   'witch',
