@@ -83,9 +83,9 @@ function parseLevel(layout: string): ParsedLevel {
 
 export const mapsLayout = [
   parseLevel(`
-..#...S##G
-.##.##.#..
-.....#.#S.
+..#..SS##G
+.##.##S#..
+.....#.#..
 .###.#....
 .#.#.#.###
 .#.#...#..
@@ -109,7 +109,7 @@ W#.#.#.##.#..##
 ...........##..
 ###.S#.##.##...
 ..r..#..#..#.##
-G.#..#.....#.gb
+G.#..#.....#Kgb
   `),
   parseLevel(`
 .##.g...T...#.....SR

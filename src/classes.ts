@@ -75,68 +75,52 @@ export class Witch extends Monster {
     this.SP = 3;
   }
 }
-export class BlackDoor extends Monster {
+export class Door extends Monster {
   speed: number = 0;
-
+  open: boolean = false;
+  init(): void {
+    this.HP = 0;
+    this.DP = 0;
+    this.SP = 0;
+  }
+}
+export class Chest extends Monster {
+  speed: number = 0;
+  gold: number = 0;
+  open: boolean = false;
+  hasPotion: boolean = false;
+  hasSword: boolean = false;
+  init(): void {
+    this.HP = 0;
+    this.DP = 0;
+    this.SP = 0;
+  }
+}
+export class BlackDoor extends Door {
   init(): void {
     this.image = 'blackDoor';
     this.pickASpot(mapSize, mapSize);
-    this.alive = true;
-    this.HP = 0;
-    this.DP = 0;
-    this.SP = 0;
   }
 }
 
-export class GreenChest extends Monster {
-  speed: number = 0;
-  gold: number = 0;
-  open: boolean = false;
-  hasPotion: boolean = false;
-  hasSword: boolean = false;
-
+export class GreenChest extends Chest {
   init(): void {
     this.image = 'greenChest';
-    this.alive = true;
-    this.HP = 0;
-    this.DP = 0;
-    this.SP = 0;
   }
 }
-export class RedChest extends Monster {
-  speed: number = 0;
-  gold: number = 0;
-  open: boolean = false;
-  hasPotion: boolean = false;
-  hasSword: boolean = false;
-
+export class RedChest extends Chest {
   init(): void {
     this.image = 'redChest';
-    this.alive = true;
-    this.hasSword = false;
-    this.HP = 0;
-    this.DP = 0;
-    this.SP = 0;
   }
 }
 
-export class GreenDoor extends Monster {
-  speed: number = 0;
+export class GreenDoor extends Door {
   init(): void {
     this.image = 'greenDoor';
-    this.alive = true;
-    this.HP = 0;
-    this.DP = 0;
-    this.SP = 0;
   }
 }
-export class RedDoor extends Monster {
-  speed: number = 0;
+export class RedDoor extends Door {
   init(): void {
     this.image = 'redDoor';
-    this.alive = true;
-    this.HP = 0;
-    this.DP = 0;
-    this.SP = 0;
   }
 }
