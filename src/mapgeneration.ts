@@ -11,130 +11,8 @@ import {
 } from './classes';
 import { monsterLevel } from './variables';
 
-interface ParsedLevel {
-  walls: [number, number][];
-  witches: [number, number][];
-  guards: [number, number][];
-  skeletons: [number, number][];
-  boss: [number, number][];
-  greenChests: [number, number][];
-  redChests: [number, number][];
-  greenDoors: [number, number][];
-  redDoors: [number, number][];
-  blackDoor: [number, number][];
-}
-
-function parseLevel(layout: string): ParsedLevel {
-  const result: ParsedLevel = {
-    walls: [],
-    witches: [],
-    guards: [],
-    skeletons: [],
-    boss: [],
-    greenChests: [],
-    redChests: [],
-    greenDoors: [],
-    redDoors: [],
-    blackDoor: [],
-  };
-
-  layout
-    .trim()
-    .split('\n')
-    .forEach((row, y) => {
-      row.split('').forEach((cell, x) => {
-        switch (cell) {
-          case '#':
-            result.walls.push([x + 1, y + 1]);
-            break;
-          case 'W':
-            result.witches.push([x + 1, y + 1]);
-            break;
-          case 'T':
-            result.guards.push([x + 1, y + 1]);
-            break;
-          case 'S':
-            result.skeletons.push([x + 1, y + 1]);
-            break;
-          case 'K':
-            result.boss.push([x + 1, y + 1]);
-            break;
-          case 'b':
-            result.blackDoor.push([x + 1, y + 1]);
-            break;
-          case 'g':
-            result.greenDoors.push([x + 1, y + 1]);
-            break;
-          case 'r':
-            result.redDoors.push([x + 1, y + 1]);
-            break;
-          case 'G':
-            result.greenChests.push([x + 1, y + 1]);
-            break;
-          case 'R':
-            result.redChests.push([x + 1, y + 1]);
-            break;
-        }
-      });
-    });
-
-  return result;
-}
-
-export const mapsLayout = [
-  parseLevel(`
-..#.gSS##G
-.##.##S#..
-.....#g#..
-.###.#....
-.#.#.#.###
-.#.#...#..
-...S.#....
-##.....#g#
-....####..
-G.#...W#Kb
-  `),
-  parseLevel(`
-.#...#G#....S..
-.....#..T......
-.##..#####r###.
-.#S........#...
-...##.##...###.
-##.#.......#.T.
-W#.#.#.##.#..##
-.#...#..#.#....
-.###.#T.#.####.
-.....#R.#.#....
-.###.####..T...
-...........##..
-###.S#.##.##...
-..r..#..#..#.##
-G.#..#.....#Kgb
-  `),
-  parseLevel(`
-.##.g...T...#.....SR
-....#.G####.#.#..#S.
-#r#.#.R#..r...#..#..
-W.#.####.###G.#..###
-GG#.S....#.####.T...
-###.###.##.#.G####S.
-....#......#.G#..#..
-.####.####.#r##..#..
-.R#...#.T..#...T.###
-.##.#.#..#...###.###
-.Sr.#.#R.#.#.#G..#G.
-.##...####.#.###.##.
-.#..#.....S..T....#.
-....##.##.#####.#.#r
-g##.....#.#G.Tr.#..T
-..#.###...#####T##.#
-..#S#...#...T.......
-W.#G#.###.#.###..##K
-#####.#...#.TR#..#..
-RS........##..#..#.b
-    `),
-];
-
+import { mapLayout } from './mapLayout';
+import { patrolPaths } from './patrol';
 export let monsterList: Monster[] = [];
 export let mobList: Monster[] = [];
 export let witchList: Monster[] = [];
@@ -163,11 +41,15 @@ export let redPotionsTotal: number[] = [0, 0, 1];
 function spawn<T extends Monster>(
   coords: [number, number][],
   create: () => T,
+  patrols?: [number, number][][],
   ...extraLists: T[][]
 ): void {
-  coords.forEach(([x, y]) => {
+  coords.forEach(([x, y], index) => {
     const specimen = create();
     specimen.pickASpot(x, y);
+    specimen.patrolPath = (patrols && patrols[index]) || [[x, y]];
+    specimen.patrolIndex = 0;
+    console.log(`${specimen.image} ${index} path:`, specimen.patrolPath);
     monsterList.push(specimen);
     extraLists.forEach(list => list.push(specimen));
   });
@@ -175,24 +57,51 @@ function spawn<T extends Monster>(
 
 export function instantiateSetupArrays(): void {
   const currentLevel = monsterLevel - 1;
-  const currentMap = mapsLayout[currentLevel];
+  const currentMap = mapLayout[currentLevel];
   wallPositionList = [...currentMap.walls];
-  spawn(currentMap.witches, () => new Witch(), witchList, mobList);
-  spawn(currentMap.skeletons, () => new Skeleton(), mobList);
-  spawn(currentMap.guards, () => new Guard(), mobList);
-  spawn(currentMap.blackDoor, () => new BlackDoor(), doorList);
-  spawn(currentMap.greenDoors, () => new GreenDoor(), doorList);
-  spawn(currentMap.redDoors, () => new RedDoor(), doorList);
+
+  spawn(
+    currentMap.witches,
+    () => new Witch(),
+    patrolPaths.witches[currentLevel],
+    witchList,
+    mobList
+  );
+  spawn(
+    currentMap.skeletons,
+    () => new Skeleton(),
+    patrolPaths.skeletons[currentLevel],
+    mobList
+  );
+  spawn(
+    currentMap.guards,
+    () => new Guard(),
+    patrolPaths.guards[currentLevel],
+    mobList
+  );
+  spawn(currentMap.blackDoor, () => new BlackDoor(), undefined, doorList);
+  spawn(currentMap.greenDoors, () => new GreenDoor(), undefined, doorList);
+  spawn(currentMap.redDoors, () => new RedDoor(), undefined, doorList);
   spawn(
     currentMap.greenChests,
     () => new GreenChest(),
+    undefined,
     greenChestList,
     chestList
   );
-  spawn(currentMap.redChests, () => new RedChest(), redChestList, chestList);
+  spawn(
+    currentMap.redChests,
+    () => new RedChest(),
+    undefined,
+    redChestList,
+    chestList
+  );
 
   currentMap.boss.forEach(([x, y]) => {
     bossMonster.pickASpot(x, y);
+    bossMonster.patrolPath = (patrolPaths.boss[currentLevel] &&
+      patrolPaths.boss[currentLevel][0]) || [[x, y]];
+    bossMonster.patrolIndex = 0;
     monsterList.push(bossMonster);
     mobList.push(bossMonster);
   });

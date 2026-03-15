@@ -44,6 +44,9 @@ const SPRITE_IDS = [
   'pause',
   'unpause',
   'sword',
+  'heartframe',
+  'heartfill',
+  'heartmask',
 ] as const;
 
 export type SpriteName = typeof SPRITE_IDS[number];

@@ -1,6 +1,6 @@
-import { ctx, tileWidth, heroStats, monsterLevel, canvas } from './variables';
+import { ctx, tileWidth, monsterLevel, canvas } from './variables';
 import { gameLog } from './utility';
-import {} from './setup';
+import { heroStats } from './hero';
 import {
   downdown,
   escapeanim,
@@ -66,6 +66,41 @@ function renderFloorTile(xPosition: number, yPosition: number): void {
     tileWidth
   );
 }
+
+export function renderHeart(): void {
+  const heartW = 90;
+  const heartH = 90;
+  const heartX = 935;
+  const heartY = 95;
+
+  const fillRatio = Math.max(
+    0,
+    Math.min(1, heroStats.currentHP / heroStats.maxHP)
+  );
+  const fillHeight = Math.floor(heartH * fillRatio);
+
+  const offscreen = document.createElement('canvas');
+  offscreen.width = heartW;
+  offscreen.height = heartH;
+  const offCtx = offscreen.getContext('2d')!;
+
+  // draw fill scaled to heart size
+  offCtx.drawImage(getSprite('heartfill'), 0, 0, heartW, heartH);
+
+  // erase top portion based on current HP
+  offCtx.clearRect(0, 0, heartW, heartH - fillHeight);
+
+  // crop fill to heart shape using mask
+  offCtx.globalCompositeOperation = 'destination-in';
+  offCtx.drawImage(getSprite('heartmask'), 0, 0, heartW, heartH);
+
+  // draw result onto main canvas
+  ctx.drawImage(offscreen, heartX, heartY);
+
+  // draw frame on top
+  ctx.drawImage(getSprite('heartframe'), heartX, heartY, heartW, heartH);
+}
+
 export function renderPauseScreen(): void {
   ctx.drawImage(getSprite('square'), 0, 0, 1120, 650);
   ctx.font = '20px Arial';
@@ -208,6 +243,7 @@ export function printstats(): void {
   } else {
     ctx.drawImage(getSprite('pButton'), 935, 0, 90, 90);
   }
+  renderHeart();
   if (spacedown) {
     ctx.drawImage(getSprite('space'), 935, 280, 90, 42);
   } else {

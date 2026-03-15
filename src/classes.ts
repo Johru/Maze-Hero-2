@@ -5,38 +5,22 @@ import { monsterLevel } from './variables';
 export class Treasure {}
 
 export class Monster {
-  open: boolean;
-  x: number;
-  y: number;
-  image: SpriteName;
-  HP: number;
-  DP: number;
-  SP: number;
-  alive: boolean;
-  hasKey: boolean;
+  open: boolean = false;
+  x: number = 1;
+  y: number = 0;
+  image: SpriteName = 'boss';
+  HP: number = 0;
+  DP: number = 0;
+  SP: number = 0;
+  alive: boolean = true;
+  hasKey: boolean = false;
   speed: number = 1;
   path: number[][] = [];
-  constructor(
-    open: boolean = false,
-    x: number = 1,
-    y: number = 0,
-    image: SpriteName = 'boss',
-    hp: number = 0,
-    DP: number = 0,
-    SP: number = 0,
-    alive: boolean = true,
-    hasKey: boolean = false
-  ) {
-    this.open = open;
-    this.x = x;
-    this.y = y;
-    this.image = image;
-    this.HP = hp;
-    this.DP = DP;
-    this.SP = SP;
-    this.alive = alive;
-    this.hasKey = hasKey;
-  }
+  patrolPath: number[][] = [];
+  patrolIndex: number = 0;
+  swapDestination: [number, number] | null = null;
+  isDoor: boolean = false;
+
   pickASpot(x: number, y: number): void {
     this.x = x;
     this.y = y;
@@ -48,6 +32,7 @@ export class Monster {
     this.SP = 5 + monsterLevel;
   }
 }
+
 export class Skeleton extends Monster {
   init(): void {
     this.image = 'skeleton';
@@ -77,6 +62,7 @@ export class Witch extends Monster {
 }
 export class Door extends Monster {
   speed: number = 0;
+  isDoor: boolean = true;
   init(): void {
     this.HP = 0;
     this.DP = 0;

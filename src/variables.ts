@@ -5,30 +5,9 @@ export const canvas = document.querySelector(
 ) as HTMLCanvasElement;
 export const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
-export let heroStats = {
-  x: 1,
-  y: 1,
-  facing: 'hero-down' as SpriteName,
-  level: 1,
-  maxHP: d6(3) + 20,
-  currentHP: 6,
-  DP: d6(2),
-  SP: d6(1) + 7,
-  hasKey: false,
-  hasPotion: 0,
-  hasGreenKey: false,
-  hasRedKey: false,
-  hasSword: false,
-  overKillPoints: 0,
-  overKill: true,
-  neededXP: 0,
-  currentXP: 0,
-  gold: 0,
-  highscore: 0,
-};
 export let monsterLevel: number = 1;
 export let heroXpArray: number[] = [0, 2, 6, 10, 14, 18, 28, 35, 43, 52, 72];
-export let moveEveryXMiliseconds: number = 2000;
+export let moveEveryXMiliseconds: number = 1000;
 export function updateSpeed(speedChange: number): void {
   moveEveryXMiliseconds -= speedChange;
 }

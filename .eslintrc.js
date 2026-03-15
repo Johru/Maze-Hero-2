@@ -1,6 +1,10 @@
 module.exports = {
   extends: ['plugin:@typescript-eslint/recommended'],
   parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaVersion: 2020,
+    sourceType: 'module',
+  },
   plugins: ['@typescript-eslint', 'prettier'],
   settings: {
     'import/parsers': {
@@ -13,9 +17,10 @@ module.exports = {
   env: {
     browser: true,
     node: true,
+    es2020: true,
   },
   rules: {
-    '@typescript-eslint/no-inferrable-types':'off',
-    'prefer-const':'off'
+    '@typescript-eslint/no-inferrable-types': 'off',
+    'prefer-const': 'off',
   },
 };

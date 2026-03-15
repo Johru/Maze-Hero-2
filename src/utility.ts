@@ -1,7 +1,8 @@
-import { getDestination, heroStats, monsterHasKey } from './variables';
+import { getDestination } from './variables';
 import { Monster } from './classes';
 import {} from './setup';
 import { wallPositionList } from './mapgeneration';
+import { heroStats } from './hero';
 export function d6(numberOfRolls: number): number {
   let total: number = 0;
   for (let i = 0; i < numberOfRolls; i++) {

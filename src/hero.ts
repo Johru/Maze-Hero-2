@@ -1,5 +1,4 @@
 import {
-  heroStats,
   getDestination,
   updateDestination,
   ctx,
@@ -20,7 +19,7 @@ import {
 } from './index';
 import { setMapSize, setup } from './setup';
 import { Monster } from './classes';
-import { getSprite } from './sprites';
+import { getSprite, SpriteName } from './sprites';
 import { chestList, doorList, monsterList } from './mapgeneration';
 
 export function checkIfHeroDead(): void {
@@ -42,6 +41,27 @@ export function checkIfHeroDead(): void {
     resetScrolling();
   }
 }
+export let heroStats = {
+  x: 1,
+  y: 1,
+  facing: 'hero-down' as SpriteName,
+  level: 1,
+  maxHP: d6(3) + 20,
+  currentHP: 6,
+  DP: d6(2),
+  SP: d6(1) + 7,
+  hasKey: false,
+  hasPotion: 0,
+  hasGreenKey: false,
+  hasRedKey: false,
+  hasSword: false,
+  overKillPoints: 0,
+  overKill: true,
+  neededXP: 0,
+  currentXP: 0,
+  gold: 0,
+  highscore: 0,
+};
 
 export function heroInit(): void {
   heroStats.x = 1;

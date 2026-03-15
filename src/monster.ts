@@ -3,7 +3,6 @@ import {
   ctx,
   updateDestination,
   getDestination,
-  heroStats,
   monsterLevel,
 } from './variables';
 import { isNotAWall, battle } from './utility';
@@ -21,8 +20,10 @@ import {
   wallPositionList,
   witchList,
 } from './mapgeneration';
-import {} from './map-render';
+import {} from './mapRender';
 import { getSprite } from './sprites';
+import { heroStats } from './hero';
+import { get } from 'node:http';
 export let pathToPaint: number[][] = [];
 export let unblocked = false;
 
@@ -276,7 +277,6 @@ export function findShortestPath(
     for (let node of openList) {
       if (node.thisNodeX == x && node.thisNodeY == y) return true;
     }
-
     return false;
   }
 
@@ -284,14 +284,17 @@ export function findShortestPath(
     for (let node of closedList) {
       if (node.thisNodeX == x && node.thisNodeY == y) return true;
     }
-
     return false;
   }
 
-  function isWall(x: number, y: number) {
+  function isWall(x: number, y: number): boolean {
     for (let i = 0; i < wallPositionList.length; i++) {
       if (x == wallPositionList[i][0] && y == wallPositionList[i][1])
         return true;
+    }
+    for (let monster of doorList) {
+      if (monster.x !== x || monster.y !== y) continue;
+      if (monster.isDoor && !monster.open) return true;
     }
     return false;
   }
@@ -310,43 +313,116 @@ function getShuffledDirections(): number[] {
   return [1, 2, 3, 4].sort(() => Math.random() - 0.5);
 }
 
-export function attemptToMoveMonster(specimen: Monster): void {
-  if (escapedown) return;
-  if (specimen.alive && specimen.speed > 0) {
-    if (checkLineOfSight(specimen.x, specimen.y) && specimen.image != 'witch') {
-      specimen.path = findShortestPath(
-        specimen.x,
-        specimen.y,
-        heroStats.x,
-        heroStats.y
-      );
-      specimen.path.shift();
+function tryMove(specimen: Monster): void {
+  const dest = getDestination();
+  if (isNotAWall() && isNotAMonster(specimen)) {
+    specimen.x = dest[0];
+    specimen.y = dest[1];
+    specimen.swapDestination = null;
+  } else {
+    /* console.log(
+      `${specimen.image} blocked at (${dest[0]}, ${
+        dest[1]
+      }) - wall:${!isNotAWall()} monster:${!isNotAMonster(specimen)}`
+    );*/
+    specimen.swapDestination = [dest[0], dest[1]];
+    console.log(
+      `${specimen.image} has swap destination (${specimen.swapDestination[0]}, ${specimen.swapDestination[1]})`
+    );
+  }
+}
 
-      if (specimen.path.length > 0) {
-        updateDestination(specimen.path[0][0], specimen.path[0][1]);
-        if (isNotAWall() && isNotAMonster(specimen)) {
-          specimen.x = getDestination()[0];
-          specimen.y = getDestination()[1];
-          specimen.path.shift();
+export function resolveSwap(): void {
+  for (let specimen of mobList) {
+    if (specimen.swapDestination) {
+      for (let specimen2 of mobList) {
+        if (!specimen2.swapDestination) {
+          continue;
+        }
+        if (specimen2 === specimen) continue;
+        console.log(
+          `${specimen.image} at (${specimen.x},${specimen.y}) wants to swap with ${specimen2.image} at (${specimen2.x},${specimen2.y})`
+        );
+        if (
+          specimen.x == specimen2.swapDestination[0] &&
+          specimen.y == specimen2.swapDestination[1] &&
+          specimen2.x == specimen.swapDestination[0] &&
+          specimen2.y == specimen.swapDestination[1]
+        ) {
+          [specimen.x, specimen2.x] = [specimen2.x, specimen.x];
+          [specimen.y, specimen2.y] = [specimen2.y, specimen.y];
+          specimen.swapDestination = null;
+          specimen2.swapDestination = null;
         }
       }
-    } else if (specimen.path.length > 0) {
-      updateDestination(specimen.path[0][0], specimen.path[0][1]);
+    }
+  }
+}
 
+export function attemptToMoveMonster(specimen: Monster): void {
+  if (escapedown) return;
+  if (!specimen.alive || specimen.speed <= 0) return;
+
+  if (checkLineOfSight(specimen.x, specimen.y) && specimen.image !== 'witch') {
+    specimen.path = findShortestPath(
+      specimen.x,
+      specimen.y,
+      heroStats.x,
+      heroStats.y
+    );
+    if (!specimen.path) {
+      specimen.path = [];
+      return;
+    }
+    specimen.path.shift();
+
+    if (specimen.path.length > 0) {
+      updateDestination(specimen.path[0][0], specimen.path[0][1]);
       if (isNotAWall() && isNotAMonster(specimen)) {
         specimen.x = getDestination()[0];
         specimen.y = getDestination()[1];
         specimen.path.shift();
+        specimen.swapDestination = null;
+      } else {
+        specimen.swapDestination = [getDestination()[0], getDestination()[1]];
       }
-    } else {
-      for (const direction of getShuffledDirections()) {
-        monsterDestination(direction, specimen);
-        if (isNotAWall() && isNotAMonster(specimen)) {
-          specimen.x = getDestination()[0];
-          specimen.y = getDestination()[1];
-          break;
-        }
-      }
+    }
+  } else if (specimen.patrolPath.length > 0) {
+    const target = specimen.patrolPath[specimen.patrolIndex];
+
+    if (specimen.x === target[0] && specimen.y === target[1]) {
+      specimen.patrolIndex =
+        (specimen.patrolIndex + 1) % specimen.patrolPath.length;
+    }
+
+    const nextTarget = specimen.patrolPath[specimen.patrolIndex];
+    const patrolRoute = findShortestPath(
+      specimen.x,
+      specimen.y,
+      nextTarget[0],
+      nextTarget[1]
+    );
+
+    if (!patrolRoute || patrolRoute.length === 0) return;
+    patrolRoute.shift();
+
+    if (patrolRoute.length > 0) {
+      updateDestination(patrolRoute[0][0], patrolRoute[0][1]);
+      tryMove(specimen);
+      /*console.log(
+        `${specimen.image} at (${specimen.x},${specimen.y}) patrolling to (${
+          nextTarget[0]
+        },${nextTarget[1]}) route:${patrolRoute
+          .map(coord => `(${coord[0]},${coord[1]})`)
+          .join(' -> ')}`
+      );*/
+    }
+  } else {
+    for (const direction of getShuffledDirections()) {
+      console.log('no path, trying random direction', direction);
+      monsterDestination(direction, specimen);
+      tryMove(specimen);
+      break;
     }
   }
 }

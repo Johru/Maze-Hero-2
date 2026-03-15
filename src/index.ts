@@ -1,12 +1,13 @@
 import { pushBoundariesToWallList, setup, mapSize, setMapSize } from './setup';
 import { writeGameLog } from './utility';
+import { resolveSwap } from './monster';
 import {
   renderFloor,
   renderWalls,
   printstats,
   clearCanvas,
   renderPauseScreen,
-} from './map-render';
+} from './mapRender';
 import {
   checkIfHeroDead,
   attemptToMoveHero,
@@ -14,6 +15,7 @@ import {
   increaseMapLevel,
   setHeroLevel,
   heroInit,
+  heroStats,
 } from './hero';
 import {
   renderAllMonsters,
@@ -23,7 +25,6 @@ import {
   attemptToMoveMonster,
 } from './monster';
 import {
-  heroStats,
   updateSpeed,
   moveEveryXMiliseconds,
   monsterLevel,
@@ -38,6 +39,7 @@ import {
   emptyMapLists,
 } from './mapgeneration';
 import { getSprite, loadSprites } from './sprites';
+import { resolve } from 'node:dns';
 export let scrollingModifierX: number = 0;
 export let scrollingModifierY: number = 0;
 export let pdown = false;
@@ -69,7 +71,9 @@ function tickController() {
   for (let specimen of monsterList) {
     attemptToMoveMonster(specimen);
   }
+  resolveSwap();
 }
+
 export function resetScrolling(): void {
   scrollingModifierX = 0;
   scrollingModifierY = 0;
@@ -120,7 +124,6 @@ function checkVictoryConditions() {
       return;
     }
     setMapSize();
-
     emptyMapLists();
     instantiateSetupArrays();
     pushBoundariesToWallList();
