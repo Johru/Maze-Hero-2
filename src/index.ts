@@ -31,6 +31,10 @@ import {
   ctx,
   resetSpeed,
   resetMonstersLevel,
+  computeLayout,
+  canvas,
+  canvasWidth,
+  canvasHeight,
 } from './variables';
 import {
   instantiateSetupArrays,
@@ -57,6 +61,9 @@ let currentTime = Date.now();
 const fps: number = 60;
 export let interval: ReturnType<typeof setInterval>;
 window.onload = () => {
+  computeLayout();
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
   loadSprites().then(() => {
     interval = setInterval(tickController, moveEveryXMiliseconds);
     updateGameState();
@@ -64,6 +71,12 @@ window.onload = () => {
     animate();
   });
 };
+
+window.addEventListener('resize', () => {
+  computeLayout();
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+});
 
 //Game loop handling
 function tickController() {
