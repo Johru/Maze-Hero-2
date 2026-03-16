@@ -1,4 +1,13 @@
-import { ctx, tileWidth, monsterLevel, canvas } from './variables';
+import {
+  ctx,
+  tileWidth,
+  monsterLevel,
+  canvas,
+  uiPanelX,
+  uiPanelY,
+  uiPanelWidth,
+  uiPanelHeight,
+} from './variables';
 import { gameLog } from './utility';
 import { heroStats } from './hero';
 import {
@@ -14,6 +23,7 @@ import {
 } from './index';
 import { getSprite } from './sprites';
 import { wallPositionList } from './mapgeneration';
+import e from 'express';
 
 export function clearCanvas(): void {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -77,32 +87,352 @@ export function renderHeart(): void {
     0,
     Math.min(1, heroStats.currentHP / heroStats.maxHP)
   );
-  const fillHeight = Math.floor(heartH * fillRatio);
 
+  const fillHeight = Math.floor(heartH * fillRatio);
   const offscreen = document.createElement('canvas');
   offscreen.width = heartW;
   offscreen.height = heartH;
-  const offCtx = offscreen.getContext('2d')!;
+  const offCtx = offscreen.getContext('2d') as CanvasRenderingContext2D;
 
-  // draw fill scaled to heart size
   offCtx.drawImage(getSprite('heartfill'), 0, 0, heartW, heartH);
-
-  // erase top portion based on current HP
   offCtx.clearRect(0, 0, heartW, heartH - fillHeight);
-
-  // crop fill to heart shape using mask
   offCtx.globalCompositeOperation = 'destination-in';
   offCtx.drawImage(getSprite('heartmask'), 0, 0, heartW, heartH);
-
-  // draw result onto main canvas
   ctx.drawImage(offscreen, heartX, heartY);
-
-  // draw frame on top
   ctx.drawImage(getSprite('heartframe'), heartX, heartY, heartW, heartH);
+}
+
+export function printstats(): void {
+  const fontSize = Math.floor(tileWidth * 0.27);
+  const leftRightMargin = tileWidth * 0.75;
+  const topMargin = tileWidth * 0.75;
+  const frameSize = tileWidth * 1.2;
+  const defaultFontColor = 'AntiqueWhite';
+  ctx.font = `${fontSize}px Arial`;
+  ctx.fillStyle = defaultFontColor;
+  ctx.drawImage(
+    getSprite('outerbackground'),
+    uiPanelX,
+    uiPanelY,
+    uiPanelWidth,
+    uiPanelHeight
+  );
+  ctx.drawImage(
+    getSprite('outer-corner-left-top'),
+    uiPanelX,
+    uiPanelY,
+    tileWidth / 3,
+    tileWidth / 3
+  );
+  ctx.drawImage(
+    getSprite('outer-corner-right-top'),
+    uiPanelX + uiPanelWidth - tileWidth / 3,
+    uiPanelY,
+    tileWidth / 3,
+    tileWidth / 3
+  );
+  ctx.drawImage(
+    getSprite('outer-corner-right-bottom'),
+    uiPanelX + uiPanelWidth - tileWidth / 3,
+    uiPanelY + uiPanelHeight - tileWidth / 3,
+    tileWidth / 3,
+    tileWidth / 3
+  );
+  ctx.drawImage(
+    getSprite('outer-corner-left-bottom'),
+    uiPanelX,
+    uiPanelY + uiPanelHeight - tileWidth / 3,
+    tileWidth / 3,
+    tileWidth / 3
+  );
+  ctx.drawImage(
+    getSprite('outer-edge-top'),
+    uiPanelX + tileWidth / 4,
+    uiPanelY,
+    uiPanelWidth - tileWidth / 2,
+    tileWidth / 4
+  );
+  ctx.drawImage(
+    getSprite('outer-edge-bottom'),
+    uiPanelX + tileWidth / 4,
+    uiPanelY + uiPanelHeight - tileWidth / 4,
+    uiPanelWidth - tileWidth / 2,
+    tileWidth / 4
+  );
+  ctx.drawImage(
+    getSprite('outer-edge-right'),
+    uiPanelX + uiPanelWidth - tileWidth / 4,
+    uiPanelY + tileWidth / 4,
+    tileWidth / 4,
+    uiPanelHeight - tileWidth / 2
+  );
+  ctx.drawImage(
+    getSprite('outer-edge-left'),
+    uiPanelX,
+    uiPanelY + tileWidth / 4,
+    tileWidth / 4,
+    uiPanelHeight - tileWidth / 2
+  );
+
+  //KEYS
+  ctx.fillText(
+    'Keys:',
+    uiPanelX + uiPanelWidth - leftRightMargin - tileWidth,
+    uiPanelY + tileWidth * 0.75
+  );
+  const firstKeyY = uiPanelY + tileWidth;
+  const framePlusGap = frameSize * 1.07;
+  ctx.drawImage(
+    getSprite('square-frame'),
+    uiPanelX + uiPanelWidth - tileWidth - leftRightMargin,
+    firstKeyY,
+    frameSize,
+    frameSize
+  );
+  if (heroStats.hasKey) {
+    ctx.drawImage(
+      getSprite('key'),
+      uiPanelX + uiPanelWidth - tileWidth - leftRightMargin,
+      firstKeyY,
+      frameSize,
+      frameSize
+    );
+  }
+
+  ctx.drawImage(
+    getSprite('square-frame'),
+    uiPanelX + uiPanelWidth - tileWidth - leftRightMargin,
+    firstKeyY + framePlusGap,
+    frameSize,
+    frameSize
+  );
+  if (heroStats.hasGreenKey) {
+    ctx.drawImage(
+      getSprite('greenKey'),
+      uiPanelX + uiPanelWidth - tileWidth - leftRightMargin,
+      firstKeyY + framePlusGap,
+      frameSize,
+      frameSize
+    );
+  }
+
+  ctx.drawImage(
+    getSprite('square-frame'),
+    uiPanelX + uiPanelWidth - tileWidth - leftRightMargin,
+    firstKeyY + framePlusGap * 2,
+    frameSize,
+    frameSize
+  );
+  ctx.drawImage(
+    getSprite('square-frame'),
+    uiPanelX + uiPanelWidth - tileWidth - leftRightMargin,
+    firstKeyY + framePlusGap * 3,
+    frameSize,
+    frameSize
+  );
+  ctx.drawImage(
+    getSprite('square-frame'),
+    uiPanelX + tileWidth,
+    firstKeyY + framePlusGap * 3,
+    frameSize,
+    frameSize
+  );
+
+  //GAME LOG
+  const logStartY = firstKeyY + framePlusGap * 4 + fontSize * 2;
+  ctx.fillText('Gamelog:', uiPanelX + leftRightMargin, logStartY - fontSize);
+
+  ctx.drawImage(
+    getSprite('innerbackground'),
+    uiPanelX + leftRightMargin,
+    firstKeyY + framePlusGap * 4 + fontSize * 2,
+    uiPanelWidth - leftRightMargin * 2,
+    uiPanelHeight -
+      (firstKeyY + framePlusGap * 4 + fontSize * 2) -
+      leftRightMargin
+  );
+  ctx.drawImage(
+    getSprite('inner-corner-left-top'),
+    uiPanelX + leftRightMargin,
+    logStartY,
+    tileWidth / 3,
+    tileWidth / 3
+  );
+  ctx.drawImage(
+    getSprite('inner-corner-right-top'),
+    uiPanelX + uiPanelWidth - leftRightMargin - tileWidth / 3,
+    logStartY,
+    tileWidth / 3,
+    tileWidth / 3
+  );
+  ctx.drawImage(
+    getSprite('inner-corner-left-bottom'),
+    uiPanelX + leftRightMargin,
+    uiPanelY + uiPanelHeight - leftRightMargin - tileWidth / 3,
+    tileWidth / 3,
+    tileWidth / 3
+  );
+  ctx.drawImage(
+    getSprite('inner-corner-right-bottom'),
+    uiPanelX + uiPanelWidth - leftRightMargin - tileWidth / 3,
+    uiPanelY + uiPanelHeight - leftRightMargin - tileWidth / 3,
+    tileWidth / 3,
+    tileWidth / 3
+  );
+  ctx.drawImage(
+    getSprite('inner-edge-top'),
+    uiPanelX + leftRightMargin + tileWidth / 3,
+    firstKeyY + framePlusGap * 4 + fontSize * 2,
+    uiPanelWidth - leftRightMargin * 2 - (tileWidth / 3) * 2,
+    tileWidth / 3
+  );
+  ctx.drawImage(
+    getSprite('inner-edge-bottom'),
+    uiPanelX + leftRightMargin + tileWidth / 3 - 8,
+    uiPanelY + uiPanelHeight - leftRightMargin - tileWidth / 3 - 8,
+    uiPanelWidth - leftRightMargin * 2 - (tileWidth / 3) * 2 + 16,
+    tileWidth / 3 + 10
+  );
+  ctx.drawImage(
+    getSprite('inner-edge-left'),
+    uiPanelX + leftRightMargin - 2,
+    logStartY + tileWidth / 3,
+    tileWidth / 3 + 10,
+    uiPanelHeight - logStartY - leftRightMargin - tileWidth / 3 - fontSize
+  );
+  ctx.drawImage(
+    getSprite('inner-edge-right'),
+    uiPanelX + uiPanelWidth - leftRightMargin - tileWidth / 3 - 8,
+    logStartY + tileWidth / 3,
+    tileWidth / 3 + 10,
+    uiPanelHeight - logStartY - leftRightMargin - tileWidth / 3 - fontSize
+  );
+  for (let i = 0; i < 10; i++) {
+    if (gameLog[i] === undefined) continue;
+    if (gameLog[i] == `YOU DIED`) {
+      ctx.font = '18px Arial';
+      ctx.fillStyle = 'red';
+    } else {
+      ctx.font = Math.floor(tileWidth * 0.2) + 'px Arial';
+      ctx.fillStyle = defaultFontColor;
+    }
+
+    ctx.fillText(
+      gameLog[i],
+      uiPanelX + leftRightMargin + fontSize,
+      logStartY + fontSize * (i + 1.4)
+    );
+  }
+
+  /*
+  ctx.font = '20px Arial';
+  ctx.fillText('Stats:', 660, 25);
+  ctx.drawImage(getSprite('square'), 835, 0, 90, 90);
+  ctx.drawImage(getSprite('square'), 835, 90, 90, 90);
+  ctx.drawImage(getSprite('square'), 835, 180, 90, 90);
+  ctx.drawImage(getSprite('square'), 1030, 0, 90, 90);
+  ctx.drawImage(getSprite('square'), 1100, 0, 20, 20);
+  ctx.drawImage(getSprite('square'), 1030, 90, 90, 90);
+  ctx.drawImage(getSprite('square'), 1030, 180, 90, 90);
+  ctx.drawImage(getSprite('square'), 1030, 270, 90, 90);
+  ctx.drawImage(getSprite('square'), 650, 0, 185, 270);
+  ctx.drawImage(getSprite('square'), 650, 400, 480, 250);
+
+  if (heroStats.overKill) {
+    ctx.drawImage(getSprite('axe'), 1030, 270, 90, 90);
+  }
+
+  if (heroStats.hasRedKey) {
+    ctx.drawImage(getSprite('redKey'), 835, 180, 90, 90);
+  }
+  if (heroStats.hasPotion > 0) {
+    ctx.drawImage(getSprite('potion'), 1030, 0, 90, 90);
+  }
+  ctx.font = '20px Arial';
+  ctx.fillText(`${heroStats.hasPotion}`, 1105, 17);
+
+  if (pdown) {
+    ctx.drawImage(getSprite('pButton'), 935, 0, 90, 90);
+  } else {
+    ctx.drawImage(getSprite('pButton'), 935, 0, 90, 90);
+  }
+  renderHeart();
+  if (spacedown) {
+    ctx.drawImage(getSprite('space'), 935, 280, 90, 42);
+  } else {
+    ctx.drawImage(getSprite('spaced'), 935, 280, 90, 48);
+  }
+  if (rightdown) {
+    ctx.drawImage(getSprite('right'), 920, 345, 42, 42);
+  } else {
+    ctx.drawImage(getSprite('rightd'), 920, 345, 45, 45);
+  }
+  if (leftdown) {
+    ctx.drawImage(getSprite('left'), 820, 345, 42, 42);
+  } else {
+    ctx.drawImage(getSprite('leftd'), 820, 345, 45, 45);
+  }
+  if (downdown) {
+    ctx.drawImage(getSprite('down'), 870, 345, 42, 42);
+  } else {
+    ctx.drawImage(getSprite('downd'), 870, 345, 45, 45);
+  }
+  if (updown) {
+    ctx.drawImage(getSprite('up'), 870, 295, 42, 42);
+  } else {
+    ctx.drawImage(getSprite('upd'), 870, 295, 45, 45);
+  }
+  if (escapeanim) {
+    ctx.drawImage(getSprite('escape'), 670, 290, 100, 88);
+  } else {
+    ctx.drawImage(getSprite('escaped'), 670, 290, 100, 88);
+  }
+  if (heroStats.hasSword) {
+    ctx.drawImage(getSprite('sword'), 1030, 90, 90, 90);
+  }
+  if (heroStats.hasPotion > 1000) {
+    ctx.drawImage(getSprite('potion'), 1030, 180, 90, 90);
+  }
+  ctx.fillText(`Hero Level: ${heroStats.level}`, 660, 50);
+  ctx.fillText(
+    `HP:         ${heroStats.currentHP}/${heroStats.maxHP}`,
+    660,
+    75
+  );
+  ctx.fillText(`Defense:  ${heroStats.DP}`, 660, 100);
+  ctx.fillText(`Attack:     ${heroStats.SP}`, 660, 125);
+  if (heroStats.overKill == true) {
+    ctx.fillText(`Overkill:   Active!`, 660, 150);
+  } else {
+    ctx.fillText(`Overkill:   Off`, 660, 150);
+  }
+  ctx.fillText(`Score:     ${heroStats.highscore}`, 660, 175);
+  ctx.fillText(`Map Number:${monsterLevel}`, 660, 25);
+  ctx.fillText(`Overkill Points: ${heroStats.overKillPoints}`, 660, 200);
+  ctx.fillText(`XP: ${heroStats.currentXP}/${heroStats.neededXP}`, 660, 225);
+  ctx.fillText(`Gold: ${heroStats.gold}`, 660, 250);
+
+  ctx.fillText(`Game Log:`, 680, 430);
+  ctx.font = '15px Arial';
+  for (let i = 0; i < 10; i++) {
+    if (gameLog[i] === undefined) continue;
+    if (gameLog[i] == `YOU DIED`) {
+      ctx.font = '16px Arial';
+      ctx.fillStyle = 'red';
+    } else {
+      ctx.font = '15px Arial';
+      ctx.fillStyle = 'black';
+    }
+
+    ctx.fillText(gameLog[i], 680, 450 + 20 * i);
+  }
+  ctx.fillStyle = 'black';*/
 }
 
 export function renderPauseScreen(): void {
   ctx.drawImage(getSprite('square'), 0, 0, 1120, 650);
+  /*
+
   ctx.font = '20px Arial';
   ctx.fillText(`Winning the game: `, 70, 50);
   ctx.font = '12px Arial';
@@ -205,113 +535,5 @@ export function renderPauseScreen(): void {
     505
   );
   ctx.fillText(``, 75, 520);
-}
-
-export function printstats(): void {
-  ctx.font = '20px Arial';
-  ctx.fillText('Stats:', 660, 25);
-  ctx.drawImage(getSprite('square'), 835, 0, 90, 90);
-  ctx.drawImage(getSprite('square'), 835, 90, 90, 90);
-  ctx.drawImage(getSprite('square'), 835, 180, 90, 90);
-  ctx.drawImage(getSprite('square'), 1030, 0, 90, 90);
-  ctx.drawImage(getSprite('square'), 1100, 0, 20, 20);
-  ctx.drawImage(getSprite('square'), 1030, 90, 90, 90);
-  ctx.drawImage(getSprite('square'), 1030, 180, 90, 90);
-  ctx.drawImage(getSprite('square'), 1030, 270, 90, 90);
-  ctx.drawImage(getSprite('square'), 650, 0, 185, 270);
-  ctx.drawImage(getSprite('square'), 650, 400, 480, 250);
-  if (heroStats.hasKey) {
-    ctx.drawImage(getSprite('key'), 835, 0, 90, 90);
-  }
-  if (heroStats.overKill) {
-    ctx.drawImage(getSprite('axe'), 1030, 270, 90, 90);
-  }
-  if (heroStats.hasGreenKey) {
-    ctx.drawImage(getSprite('greenKey'), 835, 90, 90, 90);
-  }
-  if (heroStats.hasRedKey) {
-    ctx.drawImage(getSprite('redKey'), 835, 180, 90, 90);
-  }
-  if (heroStats.hasPotion > 0) {
-    ctx.drawImage(getSprite('potion'), 1030, 0, 90, 90);
-  }
-  ctx.font = '20px Arial';
-  ctx.fillText(`${heroStats.hasPotion}`, 1105, 17);
-
-  if (pdown) {
-    ctx.drawImage(getSprite('pButton'), 935, 0, 90, 90);
-  } else {
-    ctx.drawImage(getSprite('pButton'), 935, 0, 90, 90);
-  }
-  renderHeart();
-  if (spacedown) {
-    ctx.drawImage(getSprite('space'), 935, 280, 90, 42);
-  } else {
-    ctx.drawImage(getSprite('spaced'), 935, 280, 90, 48);
-  }
-  if (rightdown) {
-    ctx.drawImage(getSprite('right'), 920, 345, 42, 42);
-  } else {
-    ctx.drawImage(getSprite('rightd'), 920, 345, 45, 45);
-  }
-  if (leftdown) {
-    ctx.drawImage(getSprite('left'), 820, 345, 42, 42);
-  } else {
-    ctx.drawImage(getSprite('leftd'), 820, 345, 45, 45);
-  }
-  if (downdown) {
-    ctx.drawImage(getSprite('down'), 870, 345, 42, 42);
-  } else {
-    ctx.drawImage(getSprite('downd'), 870, 345, 45, 45);
-  }
-  if (updown) {
-    ctx.drawImage(getSprite('up'), 870, 295, 42, 42);
-  } else {
-    ctx.drawImage(getSprite('upd'), 870, 295, 45, 45);
-  }
-  if (escapeanim) {
-    ctx.drawImage(getSprite('escape'), 670, 290, 100, 88);
-  } else {
-    ctx.drawImage(getSprite('escaped'), 670, 290, 100, 88);
-  }
-  if (heroStats.hasSword) {
-    ctx.drawImage(getSprite('sword'), 1030, 90, 90, 90);
-  }
-  if (heroStats.hasPotion > 1000) {
-    ctx.drawImage(getSprite('potion'), 1030, 180, 90, 90);
-  }
-  ctx.fillText(`Hero Level: ${heroStats.level}`, 660, 50);
-  ctx.fillText(
-    `HP:         ${heroStats.currentHP}/${heroStats.maxHP}`,
-    660,
-    75
-  );
-  ctx.fillText(`Defense:  ${heroStats.DP}`, 660, 100);
-  ctx.fillText(`Attack:     ${heroStats.SP}`, 660, 125);
-  if (heroStats.overKill == true) {
-    ctx.fillText(`Overkill:   Active!`, 660, 150);
-  } else {
-    ctx.fillText(`Overkill:   Off`, 660, 150);
-  }
-  ctx.fillText(`Score:     ${heroStats.highscore}`, 660, 175);
-  ctx.fillText(`Map Number:${monsterLevel}`, 660, 25);
-  ctx.fillText(`Overkill Points: ${heroStats.overKillPoints}`, 660, 200);
-  ctx.fillText(`XP: ${heroStats.currentXP}/${heroStats.neededXP}`, 660, 225);
-  ctx.fillText(`Gold: ${heroStats.gold}`, 660, 250);
-
-  ctx.fillText(`Game Log:`, 680, 430);
-  ctx.font = '15px Arial';
-  for (let i = 0; i < 10; i++) {
-    if (gameLog[i] === undefined) continue;
-    if (gameLog[i] == `YOU DIED`) {
-      ctx.font = '16px Arial';
-      ctx.fillStyle = 'red';
-    } else {
-      ctx.font = '15px Arial';
-      ctx.fillStyle = 'black';
-    }
-
-    ctx.fillText(gameLog[i], 680, 450 + 20 * i);
-  }
-  ctx.fillStyle = 'black';
+  */
 }

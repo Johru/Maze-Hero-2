@@ -43,7 +43,7 @@ import {
   emptyMapLists,
 } from './mapgeneration';
 import { getSprite, loadSprites } from './sprites';
-import { resolve } from 'node:dns';
+
 export let scrollingModifierX: number = 0;
 export let scrollingModifierY: number = 0;
 export let pdown = false;
@@ -60,6 +60,7 @@ let lastUpdate = Date.now();
 let currentTime = Date.now();
 const fps: number = 60;
 export let interval: ReturnType<typeof setInterval>;
+
 window.onload = () => {
   computeLayout();
   canvas.width = canvasWidth;
@@ -78,7 +79,6 @@ window.addEventListener('resize', () => {
   canvas.height = canvasHeight;
 });
 
-//Game loop handling
 function tickController() {
   if (heroStats.currentHP < 1) return;
   for (let specimen of monsterList) {
@@ -91,6 +91,7 @@ export function resetScrolling(): void {
   scrollingModifierX = 0;
   scrollingModifierY = 0;
 }
+
 export function setMonsterSpeed(): void {
   interval = setInterval(tickController, moveEveryXMiliseconds);
 }
@@ -124,7 +125,6 @@ function updateGameState() {
   checkVictoryConditions();
 }
 
-//Reset when Map Level finished.
 function checkVictoryConditions() {
   if (
     heroStats.x == blackDoor.x &&
@@ -153,6 +153,7 @@ function checkVictoryConditions() {
     assignKey();
   }
 }
+
 function finale() {
   if (finaleDone) return;
   escapedown = true;
@@ -210,10 +211,6 @@ function setScore() {
     return b - a;
   });
 
-  console.log('scoreArray:');
-  console.log(scoreArray);
-  console.log('highscore:');
-  console.log(heroStats.highscore);
   let lowerNumber: string | number | undefined = scoreArray.find(element => {
     return parseInt(element) < heroStats.highscore;
   });
@@ -250,7 +247,7 @@ document.addEventListener('keydown', function (keyHit) {
       break;
   }
 });
-//manage user input
+
 document.addEventListener('keydown', function (keyHit) {
   if (heroStats.currentHP < 1) return;
   if (escapedown) return;
