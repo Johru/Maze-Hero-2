@@ -21,7 +21,7 @@ import {
   spacedown,
   updown,
 } from './index';
-import { getSprite } from './sprites';
+import { getSprite, SpriteName } from './sprites';
 import { wallPositionList } from './mapgeneration';
 import e from 'express';
 
@@ -77,12 +77,12 @@ function renderFloorTile(xPosition: number, yPosition: number): void {
   );
 }
 
-export function renderHeart(): void {
-  const heartW = 90;
-  const heartH = 90;
-  const heartX = 935;
-  const heartY = 95;
-
+export function renderHeart(
+  heartX: number,
+  heartY: number,
+  heartW: number,
+  heartH: number
+): void {
   const fillRatio = Math.max(
     0,
     Math.min(1, heroStats.currentHP / heroStats.maxHP)
@@ -104,12 +104,19 @@ export function renderHeart(): void {
 
 export function printstats(): void {
   const fontSize = Math.floor(tileWidth * 0.27);
-  const leftRightMargin = tileWidth * 0.75;
-  const topMargin = tileWidth * 0.75;
-  const frameSize = tileWidth * 1.2;
+  const mediumFontSize = Math.floor(tileWidth * 0.24);
+  const smallFontSize = Math.floor(tileWidth * 0.2);
+  const leftRightMargin = tileWidth * 0.5;
   const defaultFontColor = 'AntiqueWhite';
+  const frameSize = tileWidth * 1.1;
+  const framePlusGap = frameSize * 1.07;
+  const innerX = uiPanelX + leftRightMargin;
+  const innerWidth = uiPanelWidth - leftRightMargin * 2;
+
   ctx.font = `${fontSize}px Arial`;
   ctx.fillStyle = defaultFontColor;
+
+  // OUTER BACKGROUND AND BORDER
   ctx.drawImage(
     getSprite('outerbackground'),
     uiPanelX,
@@ -132,15 +139,15 @@ export function printstats(): void {
     tileWidth / 3
   );
   ctx.drawImage(
-    getSprite('outer-corner-right-bottom'),
-    uiPanelX + uiPanelWidth - tileWidth / 3,
+    getSprite('outer-corner-left-bottom'),
+    uiPanelX,
     uiPanelY + uiPanelHeight - tileWidth / 3,
     tileWidth / 3,
     tileWidth / 3
   );
   ctx.drawImage(
-    getSprite('outer-corner-left-bottom'),
-    uiPanelX,
+    getSprite('outer-corner-right-bottom'),
+    uiPanelX + uiPanelWidth - tileWidth / 3,
     uiPanelY + uiPanelHeight - tileWidth / 3,
     tileWidth / 3,
     tileWidth / 3
@@ -149,22 +156,15 @@ export function printstats(): void {
     getSprite('outer-edge-top'),
     uiPanelX + tileWidth / 4,
     uiPanelY,
-    uiPanelWidth - tileWidth / 2,
+    innerWidth + leftRightMargin,
     tileWidth / 4
   );
   ctx.drawImage(
     getSprite('outer-edge-bottom'),
     uiPanelX + tileWidth / 4,
     uiPanelY + uiPanelHeight - tileWidth / 4,
-    uiPanelWidth - tileWidth / 2,
+    innerWidth + leftRightMargin,
     tileWidth / 4
-  );
-  ctx.drawImage(
-    getSprite('outer-edge-right'),
-    uiPanelX + uiPanelWidth - tileWidth / 4,
-    uiPanelY + tileWidth / 4,
-    tileWidth / 4,
-    uiPanelHeight - tileWidth / 2
   );
   ctx.drawImage(
     getSprite('outer-edge-left'),
@@ -173,181 +173,276 @@ export function printstats(): void {
     tileWidth / 4,
     uiPanelHeight - tileWidth / 2
   );
+  ctx.drawImage(
+    getSprite('outer-edge-right'),
+    uiPanelX + uiPanelWidth - tileWidth / 4,
+    uiPanelY + tileWidth / 4,
+    tileWidth / 4,
+    uiPanelHeight - tileWidth / 2
+  );
 
-  //KEYS
+  // ── HEADER: HEART / HP / LEVEL / XP / GOLD / SCORE ──
+  let currentY = uiPanelY + tileWidth * 0.5;
+  const heartSize = tileWidth * 1.5;
+  renderHeart(innerX, currentY, heartSize, heartSize);
+
+  const statsX = innerX + heartSize + leftRightMargin * 0.5;
+  const statsWidth = uiPanelX + uiPanelWidth - leftRightMargin - statsX;
+
+  ctx.font = `bold ${Math.floor(fontSize * 1.3)}px Arial`;
+  ctx.fillStyle = defaultFontColor;
   ctx.fillText(
-    'Keys:',
-    uiPanelX + uiPanelWidth - leftRightMargin - tileWidth,
-    uiPanelY + tileWidth * 0.75
+    `HP ${heroStats.currentHP} / ${heroStats.maxHP}`,
+    statsX,
+    currentY + fontSize * 1.3
   );
-  const firstKeyY = uiPanelY + tileWidth;
-  const framePlusGap = frameSize * 1.07;
+
+  // XP bar
+  const barY = currentY + fontSize * 2.5;
+  const barWidth = statsWidth * 0.55;
+  const barHeight = fontSize * 0.6;
+  const xpRatio =
+    heroStats.neededXP > 0 ? heroStats.currentXP / heroStats.neededXP : 0;
+  ctx.font = `${mediumFontSize}px Arial`;
+  ctx.fillText(`LVL ${heroStats.level}`, statsX, barY);
+  const barX = statsX + tileWidth * 0.9;
+  ctx.fillStyle = '#333';
+  ctx.fillRect(barX, barY - barHeight, barWidth, barHeight);
+  ctx.fillStyle = '#4af';
+  ctx.fillRect(barX, barY - barHeight, barWidth * xpRatio, barHeight);
+  ctx.fillStyle = defaultFontColor;
+  ctx.fillText(
+    `${heroStats.currentXP} / ${heroStats.neededXP}`,
+    barX + barWidth + fontSize * 0.3,
+    barY
+  );
+
+  // Gold and Score
+  ctx.font = `${fontSize}px Arial`;
+  const goldY = barY + fontSize * 0.8;
+  const goldHeight = fontSize * 1.8;
+  const halfStats = statsWidth * 0.5;
+  ctx.drawImage(getSprite('gold'), statsX, goldY, goldHeight, goldHeight);
+  ctx.fillText(
+    `Gold ${heroStats.gold}`,
+    statsX + goldHeight + fontSize * 0.5,
+    goldY + goldHeight / 2 + fontSize * 0.4
+  );
+
   ctx.drawImage(
-    getSprite('square-frame'),
-    uiPanelX + uiPanelWidth - tileWidth - leftRightMargin,
-    firstKeyY,
-    frameSize,
-    frameSize
+    getSprite('score'),
+    statsX + halfStats,
+    goldY,
+    goldHeight,
+    goldHeight
   );
-  if (heroStats.hasKey) {
+  ctx.fillText(
+    `Score ${heroStats.highscore}`,
+    statsX + halfStats + goldHeight + fontSize * 0.5,
+    goldY + goldHeight / 2 + fontSize * 0.4
+  );
+
+  currentY += heartSize + leftRightMargin * 0.2;
+
+  // ── DIVIDER + INVENTORY ──
+  function drawSectionDivider(y: number, label: string): void {
     ctx.drawImage(
-      getSprite('key'),
-      uiPanelX + uiPanelWidth - tileWidth - leftRightMargin,
-      firstKeyY,
-      frameSize,
-      frameSize
+      getSprite('inner-edge-top'),
+      innerX,
+      y,
+      innerWidth,
+      tileWidth / 2
     );
   }
 
-  ctx.drawImage(
-    getSprite('square-frame'),
-    uiPanelX + uiPanelWidth - tileWidth - leftRightMargin,
-    firstKeyY + framePlusGap,
-    frameSize,
-    frameSize
-  );
-  if (heroStats.hasGreenKey) {
+  drawSectionDivider(currentY, 'Inventory');
+  currentY += fontSize * 2.5;
+
+  // inventory row 1: potion, overkill star, sword, empty
+  let overkillImageName: SpriteName | null;
+  const overkillActive = heroStats.overKill ? 'on' : 'off';
+  if (heroStats.overKillPoints > 15)
+    overkillImageName = `overkill-${overkillActive}-large` as SpriteName;
+  else if (heroStats.overKillPoints > 7)
+    overkillImageName = `overkill-${overkillActive}-medium` as SpriteName;
+  else if (heroStats.overKillPoints > 0)
+    overkillImageName = `overkill-${overkillActive}-small` as SpriteName;
+  else overkillImageName = null;
+  const inventoryItems: (SpriteName | null)[] = [
+    heroStats.hasPotion > 0 ? 'potion' : null,
+    heroStats.hasSword ? 'sword2' : 'sword',
+    overkillImageName,
+  ];
+  const inventoryNames = ['Potion', 'Weapon', 'Overkill'];
+
+  inventoryItems.forEach((item, i) => {
+    const fx = innerX + i * framePlusGap;
+    ctx.font = `${mediumFontSize}px Arial`;
+    ctx.fillText(inventoryNames[i], fx, currentY - fontSize * 0.3);
     ctx.drawImage(
-      getSprite('greenKey'),
-      uiPanelX + uiPanelWidth - tileWidth - leftRightMargin,
-      firstKeyY + framePlusGap,
+      getSprite('square-frame'),
+      fx,
+      currentY,
       frameSize,
       frameSize
     );
-  }
-
-  ctx.drawImage(
-    getSprite('square-frame'),
-    uiPanelX + uiPanelWidth - tileWidth - leftRightMargin,
-    firstKeyY + framePlusGap * 2,
-    frameSize,
-    frameSize
+    if (item)
+      ctx.drawImage(getSprite(item), fx, currentY, frameSize, frameSize);
+  });
+  ctx.fillText(
+    'MENU',
+    innerX + innerWidth - frameSize,
+    currentY - fontSize * 0.3
   );
   ctx.drawImage(
-    getSprite('square-frame'),
-    uiPanelX + uiPanelWidth - tileWidth - leftRightMargin,
-    firstKeyY + framePlusGap * 3,
-    frameSize,
-    frameSize
-  );
-  ctx.drawImage(
-    getSprite('square-frame'),
-    uiPanelX + tileWidth,
-    firstKeyY + framePlusGap * 3,
+    getSprite('escape'),
+    innerX + innerWidth - frameSize,
+    currentY + fontSize * 0.2,
     frameSize,
     frameSize
   );
 
-  //GAME LOG
-  const logStartY = firstKeyY + framePlusGap * 4 + fontSize * 2;
-  ctx.fillText('Gamelog:', uiPanelX + leftRightMargin, logStartY - fontSize);
+  // inventory row 2: P button, SPACE button
+  const buttonY = currentY + framePlusGap;
+  ctx.drawImage(
+    getSprite(pdown ? 'pdButton' : 'pButton'),
+    innerX,
+    buttonY,
+    frameSize * 0.8,
+    frameSize * 0.8
+  );
+  ctx.drawImage(
+    getSprite(spacedown ? 'spaced' : 'space'),
+    innerX + framePlusGap * 2,
+    buttonY,
+    frameSize * 1.5,
+    frameSize * 0.5
+  );
+
+  currentY = buttonY + frameSize * 0.5 + leftRightMargin * 0.5;
+
+  // ── DIVIDER + KEYS ──
+  drawSectionDivider(currentY, 'Keys');
+  currentY += tileWidth / 3 + fontSize * 0.5;
+
+  const keyItems: (SpriteName | null)[] = [
+    heroStats.hasKey ? 'key' : null,
+    heroStats.hasGreenKey ? 'greenkey' : null,
+    heroStats.hasRedKey ? 'redkey' : null,
+    heroStats.hasBlueKey ? 'bluekey' : null,
+  ];
+
+  keyItems.forEach((item, i) => {
+    const fx = innerX + i * framePlusGap;
+    ctx.drawImage(
+      getSprite('square-frame'),
+      fx,
+      currentY,
+      frameSize,
+      frameSize
+    );
+    if (item)
+      ctx.drawImage(getSprite(item), fx, currentY, frameSize, frameSize);
+  });
+
+  currentY += framePlusGap + leftRightMargin * 0.5;
+
+  // ── GAME LOG ──
+  const logBottom = uiPanelY + uiPanelHeight - leftRightMargin;
+  const logHeight = logBottom - currentY - tileWidth / 3;
 
   ctx.drawImage(
     getSprite('innerbackground'),
-    uiPanelX + leftRightMargin,
-    firstKeyY + framePlusGap * 4 + fontSize * 2,
-    uiPanelWidth - leftRightMargin * 2,
-    uiPanelHeight -
-      (firstKeyY + framePlusGap * 4 + fontSize * 2) -
-      leftRightMargin
+    innerX,
+    currentY,
+    innerWidth,
+    logHeight + tileWidth / 3
   );
   ctx.drawImage(
     getSprite('inner-corner-left-top'),
-    uiPanelX + leftRightMargin,
-    logStartY,
+    innerX,
+    currentY,
     tileWidth / 3,
     tileWidth / 3
   );
   ctx.drawImage(
     getSprite('inner-corner-right-top'),
-    uiPanelX + uiPanelWidth - leftRightMargin - tileWidth / 3,
-    logStartY,
+    innerX + innerWidth - tileWidth / 3,
+    currentY,
     tileWidth / 3,
     tileWidth / 3
   );
   ctx.drawImage(
     getSprite('inner-corner-left-bottom'),
-    uiPanelX + leftRightMargin,
-    uiPanelY + uiPanelHeight - leftRightMargin - tileWidth / 3,
+    innerX,
+    logBottom - tileWidth / 3,
     tileWidth / 3,
     tileWidth / 3
   );
   ctx.drawImage(
     getSprite('inner-corner-right-bottom'),
-    uiPanelX + uiPanelWidth - leftRightMargin - tileWidth / 3,
-    uiPanelY + uiPanelHeight - leftRightMargin - tileWidth / 3,
+    innerX + innerWidth - tileWidth / 3,
+    logBottom - tileWidth / 3,
     tileWidth / 3,
     tileWidth / 3
   );
   ctx.drawImage(
     getSprite('inner-edge-top'),
-    uiPanelX + leftRightMargin + tileWidth / 3,
-    firstKeyY + framePlusGap * 4 + fontSize * 2,
-    uiPanelWidth - leftRightMargin * 2 - (tileWidth / 3) * 2,
+    innerX + tileWidth / 3,
+    currentY,
+    innerWidth - (tileWidth / 3) * 2,
     tileWidth / 3
   );
   ctx.drawImage(
     getSprite('inner-edge-bottom'),
-    uiPanelX + leftRightMargin + tileWidth / 3 - 8,
-    uiPanelY + uiPanelHeight - leftRightMargin - tileWidth / 3 - 8,
-    uiPanelWidth - leftRightMargin * 2 - (tileWidth / 3) * 2 + 16,
-    tileWidth / 3 + 10
+    innerX + tileWidth / 3,
+    logBottom - tileWidth / 3,
+    innerWidth - (tileWidth / 3) * 2,
+    tileWidth / 3
   );
   ctx.drawImage(
     getSprite('inner-edge-left'),
-    uiPanelX + leftRightMargin - 2,
-    logStartY + tileWidth / 3,
-    tileWidth / 3 + 10,
-    uiPanelHeight - logStartY - leftRightMargin - tileWidth / 3 - fontSize
+    innerX,
+    currentY + tileWidth / 3,
+    tileWidth / 3,
+    logHeight - tileWidth / 3
   );
   ctx.drawImage(
     getSprite('inner-edge-right'),
-    uiPanelX + uiPanelWidth - leftRightMargin - tileWidth / 3 - 8,
-    logStartY + tileWidth / 3,
-    tileWidth / 3 + 10,
-    uiPanelHeight - logStartY - leftRightMargin - tileWidth / 3 - fontSize
+    innerX + innerWidth - tileWidth / 3,
+    currentY + tileWidth / 3,
+    tileWidth / 3,
+    logHeight - tileWidth / 3
   );
+
+  const logTextX = innerX + tileWidth / 3 + fontSize * 0.5;
+  const logTextStartY = currentY + tileWidth * 0.2 + fontSize;
+
   for (let i = 0; i < 10; i++) {
     if (gameLog[i] === undefined) continue;
-    if (gameLog[i] == `YOU DIED`) {
-      ctx.font = '18px Arial';
+    if (gameLog[i] === 'YOU DIED') {
+      ctx.font = `${fontSize}px Arial`;
       ctx.fillStyle = 'red';
     } else {
-      ctx.font = Math.floor(tileWidth * 0.2) + 'px Arial';
+      ctx.font = `${smallFontSize}px Arial`;
       ctx.fillStyle = defaultFontColor;
     }
-
     ctx.fillText(
-      gameLog[i],
-      uiPanelX + leftRightMargin + fontSize,
-      logStartY + fontSize * (i + 1.4)
+      `• ${gameLog[i]}`,
+      logTextX,
+      logTextStartY + smallFontSize * 1.3 * i
     );
   }
+}
 
-  /*
+/*
   ctx.font = '20px Arial';
   ctx.fillText('Stats:', 660, 25);
-  ctx.drawImage(getSprite('square'), 835, 0, 90, 90);
-  ctx.drawImage(getSprite('square'), 835, 90, 90, 90);
-  ctx.drawImage(getSprite('square'), 835, 180, 90, 90);
-  ctx.drawImage(getSprite('square'), 1030, 0, 90, 90);
-  ctx.drawImage(getSprite('square'), 1100, 0, 20, 20);
-  ctx.drawImage(getSprite('square'), 1030, 90, 90, 90);
-  ctx.drawImage(getSprite('square'), 1030, 180, 90, 90);
-  ctx.drawImage(getSprite('square'), 1030, 270, 90, 90);
-  ctx.drawImage(getSprite('square'), 650, 0, 185, 270);
-  ctx.drawImage(getSprite('square'), 650, 400, 480, 250);
 
-  if (heroStats.overKill) {
-    ctx.drawImage(getSprite('axe'), 1030, 270, 90, 90);
-  }
 
-  if (heroStats.hasRedKey) {
-    ctx.drawImage(getSprite('redKey'), 835, 180, 90, 90);
-  }
-  if (heroStats.hasPotion > 0) {
-    ctx.drawImage(getSprite('potion'), 1030, 0, 90, 90);
-  }
+
+
+
   ctx.font = '20px Arial';
   ctx.fillText(`${heroStats.hasPotion}`, 1105, 17);
 
@@ -356,7 +451,7 @@ export function printstats(): void {
   } else {
     ctx.drawImage(getSprite('pButton'), 935, 0, 90, 90);
   }
-  renderHeart();
+
   if (spacedown) {
     ctx.drawImage(getSprite('space'), 935, 280, 90, 42);
   } else {
@@ -427,7 +522,6 @@ export function printstats(): void {
     ctx.fillText(gameLog[i], 680, 450 + 20 * i);
   }
   ctx.fillStyle = 'black';*/
-}
 
 export function renderPauseScreen(): void {
   ctx.drawImage(getSprite('square'), 0, 0, 1120, 650);

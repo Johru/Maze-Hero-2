@@ -54,6 +54,7 @@ export let heroStats = {
   hasPotion: 0,
   hasGreenKey: false,
   hasRedKey: false,
+  hasBlueKey: false,
   hasSword: false,
   overKillPoints: 0,
   overKill: true,
@@ -69,6 +70,7 @@ export function heroInit(): void {
   heroStats.hasKey = false;
   heroStats.hasGreenKey = false;
   heroStats.hasRedKey = false;
+  heroStats.hasBlueKey = false;
   heroStats.hasSword = false;
   heroStats.hasPotion = 0;
   heroStats.facing = 'hero-down';

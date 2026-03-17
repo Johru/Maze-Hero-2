@@ -81,7 +81,7 @@ export function battle(monster: Monster): void {
 export let gameLog: string[] = [];
 
 export function writeGameLog(newLline: string): void {
-  const logLength = 6;
+  const logLength = 8;
   gameLog.slice(logLength, 1);
   for (let i = logLength; i > 0; i--) {
     gameLog.splice(i, 1, gameLog[i - 1]);
