@@ -23,7 +23,6 @@ import {
 import {} from './mapRender';
 import { getSprite } from './sprites';
 import { heroStats } from './hero';
-import { get } from 'node:http';
 export let pathToPaint: number[][] = [];
 export let unblocked = false;
 
@@ -320,15 +319,7 @@ function tryMove(specimen: Monster): void {
     specimen.y = dest[1];
     specimen.swapDestination = null;
   } else {
-    /* console.log(
-      `${specimen.image} blocked at (${dest[0]}, ${
-        dest[1]
-      }) - wall:${!isNotAWall()} monster:${!isNotAMonster(specimen)}`
-    );*/
     specimen.swapDestination = [dest[0], dest[1]];
-    console.log(
-      `${specimen.image} has swap destination (${specimen.swapDestination[0]}, ${specimen.swapDestination[1]})`
-    );
   }
 }
 
@@ -364,6 +355,9 @@ export function attemptToMoveMonster(specimen: Monster): void {
   if (!specimen.alive || specimen.speed <= 0) return;
 
   if (checkLineOfSight(specimen.x, specimen.y) && specimen.image !== 'witch') {
+    // update last seen position
+    specimen.heroLastSeenAt = [heroStats.x, heroStats.y];
+
     specimen.path = findShortestPath(
       specimen.x,
       specimen.y,
@@ -387,6 +381,29 @@ export function attemptToMoveMonster(specimen: Monster): void {
         specimen.swapDestination = [getDestination()[0], getDestination()[1]];
       }
     }
+  } else if (specimen.heroLastSeenAt) {
+    // no LOS but remember where hero was — path there first
+    const [lastX, lastY] = specimen.heroLastSeenAt;
+
+    if (specimen.x === lastX && specimen.y === lastY) {
+      // reached last known position, give up
+      specimen.heroLastSeenAt = null;
+      specimen.path = [];
+      return;
+    }
+
+    const chaseRoute = findShortestPath(specimen.x, specimen.y, lastX, lastY);
+
+    if (!chaseRoute || chaseRoute.length === 0) {
+      specimen.heroLastSeenAt = null;
+      return;
+    }
+    chaseRoute.shift();
+
+    if (chaseRoute.length > 0) {
+      updateDestination(chaseRoute[0][0], chaseRoute[0][1]);
+      tryMove(specimen);
+    }
   } else if (specimen.patrolPath.length > 0) {
     const target = specimen.patrolPath[specimen.patrolIndex];
 
@@ -409,17 +426,9 @@ export function attemptToMoveMonster(specimen: Monster): void {
     if (patrolRoute.length > 0) {
       updateDestination(patrolRoute[0][0], patrolRoute[0][1]);
       tryMove(specimen);
-      /*console.log(
-        `${specimen.image} at (${specimen.x},${specimen.y}) patrolling to (${
-          nextTarget[0]
-        },${nextTarget[1]}) route:${patrolRoute
-          .map(coord => `(${coord[0]},${coord[1]})`)
-          .join(' -> ')}`
-      );*/
     }
   } else {
     for (const direction of getShuffledDirections()) {
-      console.log('no path, trying random direction', direction);
       monsterDestination(direction, specimen);
       tryMove(specimen);
       break;

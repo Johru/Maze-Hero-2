@@ -46,7 +46,7 @@ export let heroStats = {
   y: 1,
   facing: 'hero-down' as SpriteName,
   level: 1,
-  maxHP: d6(3) + 20,
+  maxHP: d6(3) + 200,
   currentHP: 6,
   DP: d6(2),
   SP: d6(1) + 7,

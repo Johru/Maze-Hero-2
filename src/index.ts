@@ -158,7 +158,7 @@ function finale() {
   if (finaleDone) return;
   escapedown = true;
   setScore();
-  ctx.drawImage(getSprite('square'), 0, 0, 900, 600);
+  ctx.drawImage(getSprite('outerbackground'), 0, 0, 900, 600);
   ctx.font = '50px Arial';
   ctx.fillText(`Thank you for Playing!`, 100, 100);
   ctx.fillText(`Score: ${heroStats.highscore}`, 100, 160);
@@ -183,9 +183,9 @@ function finale() {
         heroInit();
         resetScrolling();
         escapedown = false;
-
         document.removeEventListener('keydown', tempSpaceReset);
         console.log('event listener removed');
+        finaleDone = false;
     }
   }
   finaleDone = true;

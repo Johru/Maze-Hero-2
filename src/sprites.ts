@@ -77,6 +77,7 @@ const SPRITE_IDS = [
   'sword2',
   'sword3',
   'bluekey',
+  'wasd',
 ] as const;
 
 export type SpriteName = typeof SPRITE_IDS[number];
