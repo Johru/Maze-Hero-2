@@ -105,15 +105,38 @@ export function renderHeart(
 }
 
 export function renderFinaleScreen(): void {
-  ctx.drawImage(getSprite('outerbackground'), 0, 0, 900, 600);
+  let currentY = canvasHeight / 2 - tileWidth * 2;
+  const startX = canvasWidth / 2 - tileWidth * 2;
+  const gap = fontSize * 2;
+  ctx.drawImage(getSprite('outerbackground'), 0, 0, canvasWidth, canvasHeight);
   ctx.font = `${fontSize * 2}px Arial`;
-  ctx.fillText(`Thank you for Playing!`, 100, 100);
-  ctx.fillText(`Score: ${heroStats.highscore}`, 100, 160);
-  ctx.drawImage(getSprite('space'), 100, 180, 90, 42);
-  ctx.fillText(`to restart.`, 200, 215);
-  ctx.fillText(`Previous Highscore:`, 200, 260);
+  ctx.fillText(`Thank you for Playing!`, startX, currentY);
+  currentY += gap;
+  ctx.fillText(`Score: ${heroStats.highscore}`, startX, currentY);
+  currentY += gap;
+  ctx.fillText(`Damage Dealt: ${heroStats.damageDealt}`, startX, currentY);
+  currentY += gap;
+  ctx.fillText(
+    `Damage Received: ${heroStats.damageReceived}`,
+    startX,
+    currentY
+  );
+  currentY += gap;
+  ctx.fillText(`Enemies Killed: ${heroStats.enemiesKilled}`, startX, currentY);
+  currentY += gap;
+  ctx.fillText('To restart, press', startX, currentY);
+  ctx.drawImage(
+    getSprite('space'),
+    startX + fontSize * 20,
+    currentY - fontSize,
+    tileWidth * 2,
+    (tileWidth * 2) / 3.7
+  );
+  currentY += gap;
+  ctx.fillText(`Highscores:`, startX, currentY);
+  currentY += gap;
   for (let i = 0; i < 5; i++) {
-    ctx.fillText(`${scoreArray[i]}`, 200, 320 + 60 * i);
+    ctx.fillText(`${scoreArray[i]}`, startX, currentY + fontSize * 2 * i);
   }
 }
 
@@ -142,13 +165,13 @@ export function renderDeathScreen(): void {
   currentY += gap;
   ctx.fillText(`Damage Dealt: ${heroStats.damageDealt}`, startX, currentY);
   currentY += gap;
-  ctx.fillText(`Enemies Killed: ${heroStats.enemiesKilled}`, startX, currentY);
-  currentY += gap;
   ctx.fillText(
     `Damage Received: ${heroStats.damageReceived}`,
     startX,
     currentY
   );
+  currentY += gap;
+  ctx.fillText(`Enemies Killed: ${heroStats.enemiesKilled}`, startX, currentY);
   currentY += gap;
   ctx.drawImage(
     getSprite('space'),
@@ -484,13 +507,13 @@ export function printstats(): void {
       ctx.font = `${fontSize}px Arial`;
       ctx.fillStyle = 'red';
     } else {
-      ctx.font = `${smallFontSize}px Arial`;
+      ctx.font = `${fontSize}px Arial`;
       ctx.fillStyle = defaultFontColor;
     }
     ctx.fillText(
       `• ${gameLog[i]}`,
       logTextX,
-      logTextStartY + smallFontSize * 1.3 * i
+      logTextStartY + fontSize * 1.3 * i
     );
   }
 }

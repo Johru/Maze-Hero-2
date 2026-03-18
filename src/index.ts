@@ -8,6 +8,7 @@ import {
   clearCanvas,
   renderPauseScreen,
   renderDeathScreen,
+  renderFinaleScreen,
 } from './mapRender';
 import {
   attemptToMoveHero,
@@ -35,6 +36,7 @@ import {
   canvasHeight,
   moveEveryXMilisecondsMinimum,
   moveEveryXMilisecondsIncrement,
+  resetMonstersLevel,
 } from './variables';
 import {
   instantiateSetupArrays,
@@ -129,7 +131,7 @@ function updateGameState() {
       renderDeathScreen();
       break;
     case 'finale':
-      renderPauseScreen();
+      renderFinaleScreen();
       break;
   }
 }
@@ -197,6 +199,7 @@ function increaseSpeed() {
 
 function restartGame(): void {
   heroInit();
+  resetMonstersLevel();
   gameState = 'playing';
   setMapSize();
   emptyMapLists();
