@@ -331,9 +331,7 @@ export function resolveSwap(): void {
           continue;
         }
         if (specimen2 === specimen) continue;
-        console.log(
-          `${specimen.image} at (${specimen.x},${specimen.y}) wants to swap with ${specimen2.image} at (${specimen2.x},${specimen2.y})`
-        );
+
         if (
           specimen.x == specimen2.swapDestination[0] &&
           specimen.y == specimen2.swapDestination[1] &&

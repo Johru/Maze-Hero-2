@@ -1,7 +1,6 @@
 import {
   ctx,
   tileWidth,
-  monsterLevel,
   canvas,
   uiPanelX,
   uiPanelY,
@@ -9,19 +8,20 @@ import {
   uiPanelHeight,
   gridWidth,
   gridHeight,
+  canvasHeight,
+  canvasWidth,
+  fontSize,
+  mediumFontSize,
+  smallFontSize,
 } from './variables';
 import { gameLog } from './utility';
 import { heroStats } from './hero';
 import {
-  downdown,
-  escapeanim,
-  leftdown,
   pdown,
-  rightdown,
+  scoreArray,
   scrollingModifierX,
   scrollingModifierY,
   spacedown,
-  updown,
 } from './index';
 import { getSprite, SpriteName } from './sprites';
 import { wallPositionList } from './mapgeneration';
@@ -104,10 +104,63 @@ export function renderHeart(
   ctx.drawImage(getSprite('heartframe'), heartX, heartY, heartW, heartH);
 }
 
+export function renderFinaleScreen(): void {
+  ctx.drawImage(getSprite('outerbackground'), 0, 0, 900, 600);
+  ctx.font = `${fontSize * 2}px Arial`;
+  ctx.fillText(`Thank you for Playing!`, 100, 100);
+  ctx.fillText(`Score: ${heroStats.highscore}`, 100, 160);
+  ctx.drawImage(getSprite('space'), 100, 180, 90, 42);
+  ctx.fillText(`to restart.`, 200, 215);
+  ctx.fillText(`Previous Highscore:`, 200, 260);
+  for (let i = 0; i < 5; i++) {
+    ctx.fillText(`${scoreArray[i]}`, 200, 320 + 60 * i);
+  }
+}
+
+export function renderDeathScreen(): void {
+  let currentY = canvasHeight / 2 - tileWidth * 2;
+  const startX = canvasWidth / 2 - tileWidth * 2;
+  const gap = fontSize * 2;
+  ctx.drawImage(getSprite('outerbackground'), 0, 0, canvasWidth, canvasHeight);
+  ctx.font = `${fontSize * 2}px Arial`;
+  ctx.fillStyle = 'red';
+  ctx.fillText('YOU DIED', startX, currentY);
+  ctx.font = `${fontSize * 1.3}px Arial`;
+  ctx.fillStyle = 'AntiqueWhite';
+  currentY += gap;
+  ctx.fillText(
+    `HP: ${heroStats.currentHP} / ${heroStats.maxHP}`,
+    startX,
+    currentY
+  );
+  currentY += gap;
+  ctx.fillText(`Score: ${heroStats.highscore}`, startX, currentY);
+  currentY += gap;
+  ctx.fillText(`Deaths: ${localStorage.getItem('deaths')}`, startX, currentY);
+  currentY += gap;
+  ctx.fillText(`Killed By: ${heroStats.killedBy}`, startX, currentY);
+  currentY += gap;
+  ctx.fillText(`Damage Dealt: ${heroStats.damageDealt}`, startX, currentY);
+  currentY += gap;
+  ctx.fillText(`Enemies Killed: ${heroStats.enemiesKilled}`, startX, currentY);
+  currentY += gap;
+  ctx.fillText(
+    `Damage Received: ${heroStats.damageReceived}`,
+    startX,
+    currentY
+  );
+  currentY += gap;
+  ctx.drawImage(
+    getSprite('space'),
+    startX + fontSize * 10,
+    currentY - fontSize,
+    tileWidth * 2,
+    (tileWidth * 2) / 3.7
+  );
+  ctx.fillText('To restart, press', startX, currentY);
+}
+
 export function printstats(): void {
-  const fontSize = Math.floor(tileWidth * 0.27);
-  const mediumFontSize = Math.floor(tileWidth * 0.24);
-  const smallFontSize = Math.floor(tileWidth * 0.2);
   const leftRightMargin = tileWidth * 0.5;
   const defaultFontColor = 'AntiqueWhite';
   const frameSize = tileWidth * 1.1;
@@ -297,7 +350,7 @@ export function printstats(): void {
     currentY + fontSize * 1
   );
   ctx.fillText(
-    'MENU',
+    'HELP',
     innerX + innerWidth - frameSize,
     currentY - fontSize * 0.3
   );
@@ -444,9 +497,6 @@ export function printstats(): void {
 
 export function renderPauseScreen(): void {
   ctx.drawImage(getSprite('outerbackground'), 0, 0, gridWidth, gridHeight);
-  const fontSize = Math.floor(tileWidth * 0.27);
-  const mediumFontSize = Math.floor(tileWidth * 0.24);
-  const smallFontSize = Math.floor(tileWidth * 0.2);
   const leftRightMargin = tileWidth * 0.5;
   const defaultFontColor = 'AntiqueWhite';
   const frameSize = tileWidth * 1.1;
@@ -490,5 +540,32 @@ export function renderPauseScreen(): void {
     'More dungeons and dungeon selection menu will be added soon...',
     innerX + frameSize * 1.8 + gapX,
     currentY + frameSize * 0.5 + fontSize
+  );
+
+  currentY += framePlusGap;
+
+  ctx.drawImage(
+    getSprite('overkill-on-large'),
+    innerX + frameSize / 2,
+    currentY,
+    frameSize,
+    frameSize
+  );
+
+  ctx.fillText(
+    'As you kill enemies, you accumulate overkill points.',
+    innerX + frameSize * 1.8 + gapX,
+    currentY + frameSize * 0.3
+  );
+
+  ctx.fillText(
+    'Press space to activate/deactivate. When active, fights consume',
+    innerX + frameSize * 1.8 + gapX,
+    currentY + frameSize * 0.3 + fontSize
+  );
+  ctx.fillText(
+    'points to deal extra damage to stronger enemies.',
+    innerX + frameSize * 1.8 + gapX,
+    currentY + frameSize * 0.3 + fontSize * 2
   );
 }

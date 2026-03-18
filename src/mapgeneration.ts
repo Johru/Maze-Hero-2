@@ -49,7 +49,6 @@ function spawn<T extends Monster>(
     specimen.pickASpot(x, y);
     specimen.patrolPath = (patrols && patrols[index]) || [[x, y]];
     specimen.patrolIndex = 0;
-    console.log(`${specimen.image} ${index} path:`, specimen.patrolPath);
     monsterList.push(specimen);
     extraLists.forEach(list => list.push(specimen));
   });

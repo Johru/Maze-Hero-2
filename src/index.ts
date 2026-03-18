@@ -7,15 +7,15 @@ import {
   printstats,
   clearCanvas,
   renderPauseScreen,
+  renderDeathScreen,
 } from './mapRender';
 import {
-  checkIfHeroDead,
   attemptToMoveHero,
   renderHero,
   increaseMapLevel,
   setHeroLevel,
-  heroInit,
   heroStats,
+  heroInit,
 } from './hero';
 import {
   renderAllMonsters,
@@ -29,12 +29,12 @@ import {
   moveEveryXMiliseconds,
   monsterLevel,
   ctx,
-  resetSpeed,
-  resetMonstersLevel,
   computeLayout,
   canvas,
   canvasWidth,
   canvasHeight,
+  moveEveryXMilisecondsMinimum,
+  moveEveryXMilisecondsIncrement,
 } from './variables';
 import {
   instantiateSetupArrays,
@@ -54,8 +54,9 @@ export let updown = false;
 export let downdown = false;
 export let escapedown = false;
 export let escapeanim = false;
-let scoreArray: string[] = ['0', '0', '0', '0', '0'];
-let finaleDone = false;
+export type GameState = 'playing' | 'paused' | 'dead' | 'finale';
+export let gameState: GameState = 'playing';
+export let scoreArray: string[] = ['0', '0', '0', '0', '0'];
 let lastUpdate = Date.now();
 let currentTime = Date.now();
 const fps: number = 60;
@@ -107,22 +108,58 @@ function animate() {
 }
 
 function updateGameState() {
-  if (monsterLevel > 3) {
-    finale();
-    return;
-  }
-  if (escapedown) return;
   clearCanvas();
-  renderFloor();
-  renderWalls();
-  printstats();
-  renderAllMonsters();
-  setHeroLevel();
-  renderHero();
-  checkIfBattleForMonsters();
-  checkIfHeroDead();
-  determineScore();
-  checkVictoryConditions();
+  switch (gameState) {
+    case 'playing':
+      renderFloor();
+      renderWalls();
+      printstats();
+      renderAllMonsters();
+      setHeroLevel();
+      renderHero();
+      checkIfBattleForMonsters();
+      checkIfHeroDead();
+      determineScore();
+      checkVictoryConditions();
+      break;
+    case 'paused':
+      renderPauseScreen();
+      break;
+    case 'dead':
+      renderDeathScreen();
+      break;
+    case 'finale':
+      renderPauseScreen();
+      break;
+  }
+}
+
+export function checkIfHeroDead(): void {
+  if (heroStats.currentHP < 1) {
+    enterDeadState();
+  }
+}
+
+function enterDeadState(): void {
+  let deathCount = parseInt(localStorage.getItem('deaths') || '0') + 1;
+  localStorage.setItem('deaths', deathCount.toString());
+  gameState = 'dead';
+  waitForRestart();
+}
+
+function enterFinaleState(): void {
+  setScore();
+  gameState = 'finale';
+  waitForRestart();
+}
+
+function waitForRestart(): void {
+  function onSpaceRestart(e: KeyboardEvent) {
+    if (e.key !== ' ') return;
+    document.removeEventListener('keydown', onSpaceRestart);
+    restartGame();
+  }
+  document.addEventListener('keydown', onSpaceRestart);
 }
 
 function checkVictoryConditions() {
@@ -133,20 +170,15 @@ function checkVictoryConditions() {
   ) {
     increaseMapLevel();
     if (monsterLevel > 3) {
-      finale();
+      enterFinaleState();
       return;
     }
+    increaseSpeed();
     setMapSize();
     emptyMapLists();
     instantiateSetupArrays();
     pushBoundariesToWallList();
     resetMonsters();
-    if (moveEveryXMiliseconds > 500) {
-      updateSpeed(500);
-      writeGameLog(`Monster Level Increases. Monsters now move faster!`);
-    } else {
-      writeGameLog(`Monster Level increases. Maximum speed reached.`);
-    }
     clearInterval(interval);
     setMonsterSpeed();
     resetScrolling();
@@ -154,41 +186,27 @@ function checkVictoryConditions() {
   }
 }
 
-function finale() {
-  if (finaleDone) return;
-  escapedown = true;
-  setScore();
-  ctx.drawImage(getSprite('outerbackground'), 0, 0, 900, 600);
-  ctx.font = '50px Arial';
-  ctx.fillText(`Thank you for Playing!`, 100, 100);
-  ctx.fillText(`Score: ${heroStats.highscore}`, 100, 160);
-  ctx.drawImage(getSprite('space'), 100, 180, 90, 42);
-  ctx.fillText(`to restart.`, 200, 215);
-  ctx.fillText(`Previous Highscore:`, 200, 260);
-  for (let i = 0; i < 5; i++) {
-    ctx.fillText(`${scoreArray[i]}`, 200, 320 + 60 * i);
+function increaseSpeed() {
+  if (moveEveryXMiliseconds > moveEveryXMilisecondsMinimum) {
+    updateSpeed(moveEveryXMilisecondsIncrement);
+    writeGameLog(`Monster Level Increases. Monsters now move faster!`);
+  } else {
+    writeGameLog(`Monster Level increases. Maximum speed reached.`);
   }
+}
 
-  document.addEventListener('keydown', tempSpaceReset);
-  console.log('event listener added');
-  function tempSpaceReset(notHit: any) {
-    switch (notHit.key) {
-      case ' ':
-        resetMonstersLevel();
-        setMapSize();
-        setup();
-        resetSpeed(2000);
-        clearInterval(interval);
-        setMonsterSpeed();
-        heroInit();
-        resetScrolling();
-        escapedown = false;
-        document.removeEventListener('keydown', tempSpaceReset);
-        console.log('event listener removed');
-        finaleDone = false;
-    }
-  }
-  finaleDone = true;
+function restartGame(): void {
+  heroInit();
+  gameState = 'playing';
+  setMapSize();
+  emptyMapLists();
+  instantiateSetupArrays();
+  pushBoundariesToWallList();
+  resetMonsters();
+  clearInterval(interval);
+  setMonsterSpeed();
+  resetScrolling();
+  assignKey();
 }
 
 function determineScore() {

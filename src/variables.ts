@@ -16,7 +16,14 @@ export let canvasWidth = window.innerWidth - CANVAS_OFFSET * 2;
 canvas.style.margin = `${CANVAS_MARGIN}px`;
 canvas.style.border = `${CANVAS_BORDER}px solid black`;
 
-export let moveEveryXMiliseconds: number = 1000;
+export let moveEveryXMilisecondsInitial: number = 2000;
+export let moveEveryXMilisecondsIncrement: number = 750;
+export let moveEveryXMiliseconds: number = 2000;
+export let moveEveryXMilisecondsMinimum: number = 500;
+
+export const fontSize = Math.floor(tileWidth * 0.27);
+export const mediumFontSize = Math.floor(tileWidth * 0.24);
+export const smallFontSize = Math.floor(tileWidth * 0.2);
 
 export function updateSpeed(speedChange: number): void {
   moveEveryXMiliseconds -= speedChange;

@@ -3,6 +3,7 @@ import { Monster } from './classes';
 import {} from './setup';
 import { wallPositionList } from './mapgeneration';
 import { heroStats } from './hero';
+import { SpriteName } from './sprites';
 export function d6(numberOfRolls: number): number {
   let total: number = 0;
   for (let i = 0; i < numberOfRolls; i++) {
@@ -52,32 +53,47 @@ export function battle(monster: Monster): void {
     if (monsterAttack > heroStats.DP) {
       heroStats.currentHP -= monsterAttack - heroStats.DP;
     }
-    if (monster.HP < 0) heroStats.overKillPoints += -1 * monster.HP;
-    if (overKillUsed) heroStats.overKillPoints = 0;
-
+    if (monster.HP < 0) {
+      heroStats.enemiesKilled++;
+      heroStats.overKillPoints += -1 * monster.HP;
+      if (overKillUsed) heroStats.overKillPoints = 0;
+    }
     stopIfInfinite++;
   }
 
   if (monster.hasKey == true) {
     heroStats.hasKey = true;
   }
+  const hpLost = startingHP - heroStats.currentHP;
   monster.alive = false;
   if (heroStats.currentHP > 0) {
     if (monster.image == 'skeleton') xpGain = 1;
-    if (monster.image == 'boss') xpGain = 3;
-    if (monster.image == 'guard') xpGain = 2;
+    if (monster.image == 'boss') xpGain = 5;
+    if (monster.image == 'guard') xpGain = 3;
 
     writeGameLog(
-      `HP lost ${
-        startingHP - heroStats.currentHP
-      } / Damage given ${damageTracker} / Overkill points ${
+      `HP lost ${hpLost} / Damage given ${damageTracker} / Overkill points ${
         heroStats.overKillPoints - startingOverkill
       } `
     );
   }
+  heroStats.damageDealt += damageTracker;
+  heroStats.damageReceived += hpLost;
+  console.log(`Dealt: ${heroStats.damageDealt}`);
+  console.log(`Received: ${heroStats.damageReceived}`);
   heroStats.currentXP += xpGain;
   stopIfInfinite = 0;
+  const monsterNames: Partial<Record<SpriteName, string>> = {
+    boss: 'Dark Knight',
+    skeleton: 'Goblin',
+    guard: 'Troll',
+  };
+
+  if (heroStats.currentHP < 1) {
+    heroStats.killedBy = monsterNames[monster.image] || 'Unknown';
+  }
 }
+
 export let gameLog: string[] = [];
 
 export function writeGameLog(newLline: string): void {

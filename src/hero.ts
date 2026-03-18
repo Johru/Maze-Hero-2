@@ -41,12 +41,13 @@ export function checkIfHeroDead(): void {
     resetScrolling();
   }
 }
+
 export let heroStats = {
   x: 1,
   y: 1,
   facing: 'hero-down' as SpriteName,
   level: 1,
-  maxHP: d6(3) + 200,
+  maxHP: 20,
   currentHP: 6,
   DP: d6(2),
   SP: d6(1) + 7,
@@ -62,6 +63,10 @@ export let heroStats = {
   currentXP: 0,
   gold: 0,
   highscore: 0,
+  killedBy: '',
+  damageDealt: 0,
+  damageReceived: 0,
+  enemiesKilled: 0,
 };
 
 export function heroInit(): void {
@@ -85,6 +90,10 @@ export function heroInit(): void {
   heroStats.currentHP = heroStats.maxHP;
   heroStats.overKillPoints = 0;
   heroStats.overKill = false;
+  heroStats.killedBy = '';
+  heroStats.damageDealt = 0;
+  heroStats.enemiesKilled = 0;
+  heroStats.damageReceived = 0;
 }
 
 export function increaseMapLevel(): void {
@@ -201,7 +210,6 @@ export function heroHasMatchingKey(door: Monster): boolean {
     default:
       return true;
   }
-  console.log('door type not recognized');
 }
 
 export function makeDestination(): number[] | undefined {
@@ -231,7 +239,7 @@ export function checkIfBattle(): void {
 export function setHeroLevel(): void {
   if (heroStats.currentXP >= heroStats.neededXP) {
     heroStats.level++;
-    writeGameLog('You leveled up.');
+    if (heroStats.level > 1) writeGameLog('You leveled up.');
     heroStats.currentXP -= heroStats.neededXP;
     heroStats.neededXP = heroXpArray[heroStats.level];
     let hpBoost: number = d6(1);
