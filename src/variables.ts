@@ -42,6 +42,7 @@ export function updateMonstersLevel(increment: number): number {
 }
 export function resetMonstersLevel(): void {
   monsterLevel = 1;
+  moveEveryXMiliseconds = moveEveryXMilisecondsInitial;
 }
 let destination: number[] = [];
 export function updateDestination(x: number, y: number): number[] {

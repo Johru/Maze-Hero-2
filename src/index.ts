@@ -36,6 +36,7 @@ import {
   moveEveryXMilisecondsMinimum,
   moveEveryXMilisecondsIncrement,
   resetMonstersLevel,
+  moveEveryXMilisecondsInitial,
 } from './variables';
 import {
   instantiateSetupArrays,
