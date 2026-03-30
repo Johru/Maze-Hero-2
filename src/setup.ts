@@ -6,7 +6,6 @@ import {
   instantiateSetupArrays,
   wallPositionList,
 } from './mapgeneration';
-export let floorList: number[] = [1, 1];
 
 export let mapSize: number = 10;
 

@@ -56,6 +56,7 @@ export function renderMonster(specimen: Monster): void {
     );
   }
 }
+
 export function renderDeadMonster(specimen: Monster): void {
   if (
     !specimen.alive &&
@@ -110,12 +111,6 @@ export function resetMonsters(): void {
     } else {
       chest.gold = 50;
     }
-  }
-}
-
-export function iterateList(input: any): void {
-  for (let specimen of monsterList) {
-    input(specimen);
   }
 }
 
@@ -249,8 +244,7 @@ export function findShortestPath(
 
     if (currentNode.thisNodeX == targetX && currentNode.thisNodeY == targetY) {
       let shortestPath: number[][] = [];
-      let current = [currentNode.thisNodeX, currentNode.thisNodeY];
-      shortestPath.push(current);
+      shortestPath.push([currentNode.thisNodeX, currentNode.thisNodeY]);
 
       let previous = closedList.find(
         element =>
@@ -259,18 +253,18 @@ export function findShortestPath(
       );
 
       for (let i = 0; i < currentNode.gScore; i++) {
+        if (!previous) break;
         shortestPath.push([previous.thisNodeX, previous.thisNodeY]);
-        let previous2 = closedList.find(
+        previous = closedList.find(
           element =>
-            element.thisNodeX == previous.prevNode[0] &&
-            element.thisNodeY == previous.prevNode[1]
+            element.thisNodeX == previous!.prevNode[0] &&
+            element.thisNodeY == previous!.prevNode[1]
         );
-        previous = previous2;
       }
       return shortestPath.reverse();
-      break loop1;
     }
   }
+  return [];
 
   function isOnOpenList(x: number, y: number) {
     for (let node of openList) {
@@ -325,24 +319,24 @@ function tryMove(specimen: Monster): void {
 
 export function resolveSwap(): void {
   for (let specimen of mobList) {
-    if (specimen.swapDestination) {
-      for (let specimen2 of mobList) {
-        if (!specimen2.swapDestination) {
-          continue;
-        }
-        if (specimen2 === specimen) continue;
+    const dest = specimen.swapDestination;
+    if (!dest) continue;
+    for (let specimen2 of mobList) {
+      if (!specimen2.swapDestination) {
+        continue;
+      }
+      if (specimen2 === specimen) continue;
 
-        if (
-          specimen.x == specimen2.swapDestination[0] &&
-          specimen.y == specimen2.swapDestination[1] &&
-          specimen2.x == specimen.swapDestination[0] &&
-          specimen2.y == specimen.swapDestination[1]
-        ) {
-          [specimen.x, specimen2.x] = [specimen2.x, specimen.x];
-          [specimen.y, specimen2.y] = [specimen2.y, specimen.y];
-          specimen.swapDestination = null;
-          specimen2.swapDestination = null;
-        }
+      if (
+        specimen.x == specimen2.swapDestination[0] &&
+        specimen.y == specimen2.swapDestination[1] &&
+        specimen2.x == dest[0] &&
+        specimen2.y == dest[1]
+      ) {
+        [specimen.x, specimen2.x] = [specimen2.x, specimen.x];
+        [specimen.y, specimen2.y] = [specimen2.y, specimen.y];
+        specimen.swapDestination = null;
+        specimen2.swapDestination = null;
       }
     }
   }

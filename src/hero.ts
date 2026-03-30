@@ -15,32 +15,11 @@ import {
   scrollingModifierX,
   scrollingModifierY,
   resetScrolling,
-  escapedown,
 } from './index';
 import { setMapSize, setup } from './setup';
 import { Monster } from './classes';
 import { getSprite, SpriteName } from './sprites';
 import { chestList, doorList, monsterList } from './mapgeneration';
-
-export function checkIfHeroDead(): void {
-  if (heroStats.currentHP < 1) {
-    let deaths = localStorage.getItem('deaths');
-    if (deaths === undefined || deaths === null) deaths = '0';
-    let deathCount = parseInt(deaths);
-    deathCount++;
-    localStorage.setItem('deaths', deathCount.toString());
-    writeGameLog('YOU DIED');
-    writeGameLog(`Deaths so far: ${localStorage.getItem('deaths')}`);
-    resetMonstersLevel();
-    setMapSize();
-    setup();
-    resetSpeed(2000);
-    clearInterval(interval);
-    setMonsterSpeed();
-    heroInit();
-    resetScrolling();
-  }
-}
 
 export let heroStats = {
   x: 1,
@@ -116,7 +95,6 @@ export function renderHero(): void {
 }
 
 export function attemptToMoveHero(): boolean {
-  if (escapedown) return;
   makeDestination();
   checkIfBattle();
   if (blockIfDoor()) return false;

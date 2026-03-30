@@ -20,7 +20,7 @@ export class Monster {
   patrolIndex: number = 0;
   swapDestination: [number, number] | null = null;
   isDoor: boolean = false;
-  heroLastSeenAt: [number, number] | null;
+  heroLastSeenAt: [number, number] | null = null;
 
   pickASpot(x: number, y: number): void {
     this.x = x;

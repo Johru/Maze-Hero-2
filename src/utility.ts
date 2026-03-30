@@ -79,8 +79,6 @@ export function battle(monster: Monster): void {
   }
   heroStats.damageDealt += damageTracker;
   heroStats.damageReceived += hpLost;
-  console.log(`Dealt: ${heroStats.damageDealt}`);
-  console.log(`Received: ${heroStats.damageReceived}`);
   heroStats.currentXP += xpGain;
   stopIfInfinite = 0;
   const monsterNames: Partial<Record<SpriteName, string>> = {

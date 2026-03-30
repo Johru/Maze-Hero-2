@@ -323,7 +323,7 @@ export function printstats(): void {
   currentY += heartSize + leftRightMargin * 0.2;
 
   // ── DIVIDER + INVENTORY ──
-  function drawSectionDivider(y: number, label: string): void {
+  function drawSectionDivider(y: number): void {
     ctx.drawImage(
       getSprite('inner-edge-top'),
       innerX,
@@ -333,7 +333,7 @@ export function printstats(): void {
     );
   }
 
-  drawSectionDivider(currentY, 'Inventory');
+  drawSectionDivider(currentY);
   currentY += fontSize * 2.5;
 
   // inventory row 1: potion, overkill star, sword, empty
@@ -405,7 +405,7 @@ export function printstats(): void {
   currentY = buttonY + frameSize * 0.5 + leftRightMargin * 0.5;
 
   // ── DIVIDER + KEYS ──
-  drawSectionDivider(currentY, 'Keys');
+  drawSectionDivider(currentY);
   currentY += tileWidth / 3 + fontSize * 0.5;
 
   const keyItems: (SpriteName | null)[] = [
@@ -519,6 +519,7 @@ export function printstats(): void {
 }
 
 export function renderPauseScreen(): void {
+  console.log('renderPauseScreen hit');
   ctx.drawImage(getSprite('outerbackground'), 0, 0, gridWidth, gridHeight);
   const leftRightMargin = tileWidth * 0.5;
   const defaultFontColor = 'AntiqueWhite';

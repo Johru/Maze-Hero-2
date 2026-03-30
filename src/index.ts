@@ -29,7 +29,6 @@ import {
   updateSpeed,
   moveEveryXMiliseconds,
   monsterLevel,
-  ctx,
   computeLayout,
   canvas,
   canvasWidth,
@@ -44,7 +43,7 @@ import {
   monsterList,
   emptyMapLists,
 } from './mapgeneration';
-import { getSprite, loadSprites } from './sprites';
+import { loadSprites } from './sprites';
 
 export let scrollingModifierX: number = 0;
 export let scrollingModifierY: number = 0;
@@ -126,6 +125,7 @@ function updateGameState() {
       break;
     case 'paused':
       renderPauseScreen();
+      printstats();
       break;
     case 'dead':
       renderDeathScreen();
@@ -258,10 +258,12 @@ document.addEventListener('keydown', function (keyHit) {
         escapedown = true;
         escapeanim = true;
         writeGameLog('Game is paused');
+        gameState = 'paused';
         renderPauseScreen();
       } else if (escapedown) {
         escapedown = false;
         escapeanim = true;
+        gameState = 'playing';
         writeGameLog('Game is resumed');
       }
 
